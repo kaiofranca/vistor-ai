@@ -1,0 +1,26 @@
+{
+  "core": {
+    "approvalMode": "default"
+  },
+  "context": {
+    "fileName": "GEMINI.md",
+    "includeDirectories": true,
+    "respectGitIgnore": true,
+    "respectGeminiIgnore": true,
+    "fileFiltering": {
+      "enableRecursiveSearch": true
+    }
+  },
+  "contextManagement": {
+    "enabled": true,
+    "compressionThreshold": 0.7
+  },
+  "ui": {
+    "theme": "GitHub",
+    "autoTheme": true,
+    "thinkingDisplay": "off",
+    "updateTerminalTitle": true
+  },
+  "sandbox": false,
+  "mcpServers": {}
+}

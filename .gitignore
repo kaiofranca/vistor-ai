@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+.dart_tool/
+build/
+*.g.dart
+*.freezed.dart
+pgdata/
+minio_data/
+redis_data/
+.coverage
