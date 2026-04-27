@@ -1,11 +1,45 @@
+# Secrets
 .env
+.env.*
+!.env.example
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+dist/
+
+# Alembic
+alembic/versions/*.pyc
+
+# Docker volumes
+pgdata/
+minio_data/
+redis_data/
+docker-data/
+
+# Flutter
 .dart_tool/
 build/
 *.g.dart
 *.freezed.dart
-pgdata/
-minio_data/
-redis_data/
-.coverage
+*.mocks.dart
+ios/Pods/
+android/.gradle/
+android/app/build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDEs
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
