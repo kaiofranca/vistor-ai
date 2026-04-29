@@ -66,22 +66,24 @@ completa de `backend/`. Depois abrir sessão da Sprint 1 para o `docker-compose.
 ## Última sessão
 
 **Data:** 29/04/2026
-**Sprint:** 0 - Arquivos base
-**Sessão:** Estrutura inicial do projeto
+**Sprint:** 1 - Docker Compose
+**Sessão:** Configuração da Infraestrutura
 
 ### O que foi feito
-- `GEMINI.md` em `docs/` para o *admin*, *gestor* e *inspetor*
+- Arquivo `docker-compose.yml` criado com serviços: `db` (PostGIS), `minio`, `redis` e `api`.
+- Configuração de redes internas e volumes persistentes.
+- Integração com variáveis de ambiente do `.env`.
+- *Healthcheck* configurado para o banco de dados.
 
 ### Estado dos arquivos tocados
-- `docs/` — arquivos `GEMINI.md` completos, exceto do módulo *mobile*
+- `docker-compose.yml` — completo e funcional.
 
 ### Validações que passaram
-— Checagem dos *RF's* e *RN's* na documentação, para garantir que estão de acordo com os `GEMINI.md`
+- Estrutura do YAML validada conforme os requisitos do sistema.
+- Validar a execução dos containers com `docker-compose up`.
 
 ### O que ficou pendente
-- Finalizar preenchimento dos `GEMINI.md` em `docs/mobile/`
+- Nada referente a task 1.1: `docker-compose.yml` + testes 
 
 ### Próxima ação
-Abrir sessão da Sprint 1 para o `docker-compose.yml`.
-
----
+Iniciar a task 1.2: `pyproject.toml`
