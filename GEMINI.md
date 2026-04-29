@@ -138,6 +138,7 @@ vistor-ai/
 - **Presigned URLs**: TTL máximo de 1 hora para acesso a mídias.
 - **Rate limiting**: máx. 5 tentativas/min em `/auth/login` por IP (SlowAPI).
 - Campos sensíveis (senha, token, hash) **mascarados** em logs antes de persistir.
+- **Isolamento de Banco de Dados:** Em ambiente de produção, a porta 5432 do PostgreSQL e a porta 6379 do Redis **NUNCA** devem ser expostas para o host via `ports` no Docker Compose. Elas devem ser acessíveis unicamente pela rede interna (`vistor-network`) para os containers da API.
 
 ---
 

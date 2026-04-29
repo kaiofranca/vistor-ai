@@ -43,3 +43,6 @@ android/app/build/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Outros
+SPRINTS.md
