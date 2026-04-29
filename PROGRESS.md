@@ -6,7 +6,7 @@
 
 | Sprint | Descrição | Status | Concluída em |
 |---|---|---|---|
-| 0 | Arquivos base (gitignore, env, docs, estrutura) | ✅ Concluído | 27/04/2026 |
+| 0 | Arquivos base (gitignore, env, docs, estrutura) | ✅ Concluído | 29/04/2026 |
 | 1 | Docker Compose (PostgreSQL, MinIO, Redis) | ⬜ Pendente | — |
 | 2 | FastAPI esqueleto + health endpoint | ⬜ Pendente | — |
 | 3 | Models SQLAlchemy + Migrations Alembic | ⬜ Pendente | — |
@@ -26,8 +26,6 @@
 | 12 | Mapa + Heatmap | ⬜ Pendente | — |
 | 13 | Laudos + Perfil + Offline | ⬜ Pendente | — |
 | 14 | Gestão de Equipe + Exportar + Usuários | ⬜ Pendente | — |
-
-
 
 > Legenda: ⬜ Pendente · 🔄 Em andamento · ✅ Concluído · ⚠️ Bloqueado
 
@@ -62,3 +60,28 @@
 ### Próxima ação
 Concluir os arquivos de `docs/` (GEMINI.md de cada módulo) e confirmar estrutura
 completa de `backend/`. Depois abrir sessão da Sprint 1 para o `docker-compose.yml`.
+
+---
+
+## Última sessão
+
+**Data:** 29/04/2026
+**Sprint:** 0 - Arquivos base
+**Sessão:** Estrutura inicial do projeto
+
+### O que foi feito
+- `GEMINI.md` em `docs/` para o *admin*, *gestor* e *inspetor*
+
+### Estado dos arquivos tocados
+- `docs/` — arquivos `GEMINI.md` completos, exceto do módulo *mobile*
+
+### Validações que passaram
+— Checagem dos *RF's* e *RN's* na documentação, para garantir que estão de acordo com os `GEMINI.md`
+
+### O que ficou pendente
+- Finalizar preenchimento dos `GEMINI.md` em `docs/mobile/`
+
+### Próxima ação
+Abrir sessão da Sprint 1 para o `docker-compose.yml`.
+
+---
