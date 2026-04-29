@@ -6,8 +6,8 @@
 
 | Sprint | Descrição | Status | Concluída em |
 |---|---|---|---|
-| 0 | Arquivos base (gitignore, env, docs, estrutura) | ✅ Concluído | 29/04/2026 |
-| 1 | Docker Compose (PostgreSQL, MinIO, Redis) | ⬜ Pendente | — |
+| 0 | Arquivos base (gitignore, env, docs, estrutura) | ✅ Concluído | 27/04/2026 |
+| 1 | Docker Compose + Dependências (Task 1.1 e 1.2) | ⬜ Pendente |  |
 | 2 | FastAPI esqueleto + health endpoint | ⬜ Pendente | — |
 | 3 | Models SQLAlchemy + Migrations Alembic | ⬜ Pendente | — |
 | 4 | Autenticação (JWT, refresh, blacklist) | ⬜ Pendente | — |
@@ -66,7 +66,7 @@ completa de `backend/`. Depois abrir sessão da Sprint 1 para o `docker-compose.
 ## Última sessão
 
 **Data:** 29/04/2026
-**Sprint:** 1 - Docker Compose
+**Sprint:** 1 - Docker Compose + Dependências
 **Sessão:** Configuração da Infraestrutura
 
 ### O que foi feito
@@ -86,4 +86,29 @@ completa de `backend/`. Depois abrir sessão da Sprint 1 para o `docker-compose.
 - Nada referente a task 1.1: `docker-compose.yml` + testes 
 
 ### Próxima ação
-Iniciar a task 1.2: `pyproject.toml`
+Iniciar a task 1.2 
+
+---
+
+## Última sessão
+
+**Data:** 29/04/2026
+**Sprint:** 1 - Docker Compose + Dependências
+**Sessão:** Configuração do Ambiente Backend (Task 1.2)
+
+### O que foi feito
+- Arquivo `backend/pyproject.toml` criado com todas as dependências de produção e desenvolvimento.
+- Configuração do sistema de build (`hatchling`), `pytest` (async mode) e `ruff` (line length).
+- Inclusão de pacotes críticos: PostGIS (`geoalchemy2`), IA (`onnxruntime`), PDF (`weasyprint`) e S3 (`aiobotocore`).
+
+### Estado dos arquivos tocados
+- `backend/pyproject.toml` — completo e configurado.
+
+### Validações que passaram
+- Verificação da sintaxe TOML e presença de todas as dependências solicitadas.
+
+### O que ficou pendente
+- Task 1.3: 
+
+### Próxima ação
+Aguardando definição da task 1.3.
