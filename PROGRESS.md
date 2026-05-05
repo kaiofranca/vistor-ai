@@ -7,7 +7,7 @@
 | Sprint | Descrição | Status | Concluída em |
 |---|---|---|---|
 | 0 | Arquivos base (gitignore, env, docs, estrutura) | ✅ Concluído | 27/04/2026 |
-| 1 | Docker Compose + Dependências (Task 1.1 e 1.2) | ⬜ Pendente |  |
+| 1 | Docker Compose + Dependências (Task 1.1 a 1.3) | ✅ Concluído | 05/05/2026 |
 | 2 | FastAPI esqueleto + health endpoint | ⬜ Pendente | — |
 | 3 | Models SQLAlchemy + Migrations Alembic | ⬜ Pendente | — |
 | 4 | Autenticação (JWT, refresh, blacklist) | ⬜ Pendente | — |
@@ -33,7 +33,8 @@
 
 ## Última sessão
 
-**Data:** 27/04/2026
+**Data:** 29/04/2026
+
 **Sprint:** 0 - Arquivos base
 **Sessão:** Estrutura inicial do projeto
 
@@ -112,3 +113,35 @@ Iniciar a task 1.2
 
 ### Próxima ação
 Aguardando definição da task 1.3.
+
+---
+
+## Última sessão
+
+**Data:** 05/05/2026
+**Sprint:** 1 - Docker Compose + Dependências
+**Sessão:** Dockerização do Backend (Task 1.3)
+
+### O que foi feito
+- Arquivo `backend/Dockerfile` criado com multi-stage build (`builder` e `runtime`).
+- Instalação de dependências de sistema para WeasyPrint, PostGIS e python-magic.
+- Configuração de usuário não-root (`appuser`) para segurança.
+- Suporte dinâmico para ambiente de desenvolvimento (`--reload`) via `BUILD_ENV`.
+- Arquivo `backend/.dockerignore` criado para otimização e segurança.
+
+### Estado dos arquivos tocados
+- `backend/Dockerfile` — completo e otimizado.
+- `backend/.dockerignore` — completo.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+- Dockerfile segue as melhores práticas (non-root, multi-stage, slim image).
+- Variáveis de ambiente e comandos de inicialização configurados conforme requisitos.
+
+### O que ficou pendente
+- Nada referente a Sprint 1.
+
+### Próxima ação
+Sprint 2: Criação do esqueleto FastAPI e endpoint de health check.
+
+---
