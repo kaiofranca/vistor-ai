@@ -1,0 +1,38 @@
+from typing import List
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    DATABASE_URL: str
+
+    # MinIO
+    MINIO_ENDPOINT: str
+    MINIO_USER: str
+    MINIO_PASSWORD: str
+
+    REDIS_URL: str
+
+    # HuggingFace
+    HF_API_KEY: str
+    HF_MODEL_ID: str = "google/vit-base-patch16-224"
+    HF_TIMEOUT_SECONDS: int = 10
+    HF_CONFIDENCE_THRESHOLD: float = 0.55
+
+    JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_TTL_MINUTES: int = 15
+    REFRESH_TOKEN_TTL_DAYS: int = 7
+
+    ALLOWED_ORIGINS: List[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    ENVIRONMENT: str = "development"
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore"
+    )
+
+
+settings = Settings()

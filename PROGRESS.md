@@ -8,7 +8,7 @@
 |---|---|---|---|
 | 0 | Arquivos base (gitignore, env, docs, estrutura) | ✅ Concluído | 27/04/2026 |
 | 1 | Docker Compose + Dependências (Task 1.1 a 1.3) | ✅ Concluído | 05/05/2026 |
-| 2 | FastAPI esqueleto + health endpoint | ⬜ Pendente | — |
+| 2 | FastAPI esqueleto + health endpoint | 🔄 Em andamento | — |
 | 3 | Models SQLAlchemy + Migrations Alembic | ⬜ Pendente | — |
 | 4 | Autenticação (JWT, refresh, blacklist) | ⬜ Pendente | — |
 | 5 | Inspeções CRUD + PostGIS | ⬜ Pendente | — |
@@ -145,3 +145,30 @@ Aguardando definição da task 1.3.
 Sprint 2: Criação do esqueleto FastAPI e endpoint de health check.
 
 ---
+
+## Última sessão
+
+**Data:** 05/05/2026
+**Sprint:** 2 - FastAPI esqueleto + health endpoint
+**Sessão:** Configuração e Conexão com Banco de Dados
+
+### O que foi feito
+- Implementado `app/config.py` utilizando Pydantic Settings para carregar variáveis de ambiente.
+- Implementado `app/database.py` com suporte a SQLAlchemy assíncrono e `asyncpg`.
+- Criada a classe `Base` declarativa para futuros modelos ORM.
+- Criada a dependência `get_db` para injeção de sessão nos routers.
+
+### Estado dos arquivos tocados
+- `backend/app/config.py` — completo.
+- `backend/app/database.py` — completo.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+- Configurações mapeadas conforme `.env.example`.
+- Fábrica de sessões configurada para operações assíncronas.
+
+### O que ficou pendente
+- Implementar `main.py` com o esqueleto FastAPI e o endpoint de health check.
+
+### Próxima ação
+Finalizar a Sprint 2 com a implementação do `main.py` e validação do health check.
