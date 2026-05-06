@@ -8,7 +8,7 @@
 |---|---|---|---|
 | 0 | Arquivos base (gitignore, env, docs, estrutura) | ✅ Concluído | 27/04/2026 |
 | 1 | Docker Compose + Dependências (Task 1.1 a 1.3) | ✅ Concluído | 05/05/2026 |
-| 2 | FastAPI esqueleto + health endpoint | ⬜ Pendente | — |
+| 2 | FastAPI esqueleto + health endpoint | ✅ Concluído | 05/05/2026 |
 | 3 | Models SQLAlchemy + Migrations Alembic | ⬜ Pendente | — |
 | 4 | Autenticação (JWT, refresh, blacklist) | ⬜ Pendente | — |
 | 5 | Inspeções CRUD + PostGIS | ⬜ Pendente | — |
@@ -145,3 +145,86 @@ Aguardando definição da task 1.3.
 Sprint 2: Criação do esqueleto FastAPI e endpoint de health check.
 
 ---
+
+## Última sessão
+
+**Data:** 05/05/2026
+**Sprint:** 2 - FastAPI esqueleto + health endpoint
+**Sessão:** Configuração e Conexão com Banco de Dados
+
+### O que foi feito
+- Implementado `app/config.py` utilizando Pydantic Settings para carregar variáveis de ambiente.
+- Implementado `app/database.py` com suporte a SQLAlchemy assíncrono e `asyncpg`.
+- Criada a classe `Base` declarativa para futuros modelos ORM.
+- Criada a dependência `get_db` para injeção de sessão nos routers.
+
+### Estado dos arquivos tocados
+- `backend/app/config.py` — completo.
+- `backend/app/database.py` — completo.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+- Configurações mapeadas conforme `.env.example`.
+- Fábrica de sessões configurada para operações assíncronas.
+
+### O que ficou pendente
+- Implementar `main.py` com o esqueleto FastAPI e o endpoint de health check.
+
+### Próxima ação
+Finalizar a Sprint 2 com a implementação do `main.py` e validação do health check.
+
+---
+
+## Última sessão
+
+**Data:** 05/05/2026
+**Sprint:** 2 - FastAPI esqueleto + health endpoint
+**Sessão:** Esqueleto FastAPI e Routers
+
+### O que foi feito
+- Implementado `app/main.py` com instância FastAPI, middleware CORS e endpoint de `/health`.
+- Criados stubs para os 6 routers principais (`auth`, `users`, `inspections`, `media`, `reports`, `geo`) para permitir importação.
+- Configurada a inclusão dos routers no app principal com prefixos e tags.
+
+### Estado dos arquivos tocados
+- `backend/app/main.py` — completo (esqueleto).
+- `backend/app/routers/*.py` — stubs criados.
+- `PROGRESS.md` — Sprint 2 concluída.
+
+### Validações que passaram
+- Importações resolvidas, permitindo o boot da API.
+- Endpoint de health check implementado.
+
+### O que ficou pendente
+- Nada referente a Sprint 2.
+
+### Próxima ação
+Iniciar Sprint 3: Definição dos Models SQLAlchemy e Migrations Alembic.
+
+---
+
+## Última sessão
+
+**Data:** 05/05/2026
+**Sprint:** 2 - FastAPI esqueleto + health endpoint
+**Sessão:** Ajustes de Build e Configuração
+
+### O que foi feito
+- Corrigido erro de build `metadata-generation-failed` no Dockerfile através da configuração explícita do `tool.hatch.build.targets.wheel` no `pyproject.toml`.
+- Corrigido erro de parse `SettingsError` no Pydantic ao ajustar o formato da variável `ALLOWED_ORIGINS` para um array JSON válido (`List[str]`).
+- Atualizado `.env.example` com o formato correto de strings JSON para variáveis de lista.
+
+### Estado dos arquivos tocados
+- `backend/pyproject.toml` — atualizado com configuração de build.
+- `.env.example` — atualizado com formato JSON para listas.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+- Build da imagem Docker concluído com sucesso após os ajustes.
+- Configuração do Pydantic validada para aceitar arrays JSON via variáveis de ambiente.
+
+### O que ficou pendente
+- Validar conectividade real com os serviços (db, redis, minio) assim que os modelos forem criados.
+
+### Próxima ação
+Iniciar Sprint 3: Models SQLAlchemy e Migrations Alembic.
