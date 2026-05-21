@@ -11,7 +11,7 @@
 | 2 | FastAPI esqueleto + health endpoint | ✅ Concluído | 05/05/2026 |
 | 3 | Models SQLAlchemy + Migrations Alembic | ✅ Concluído | 08/05/2026 |
 | 4 | Autenticação (JWT, refresh, blacklist) | ✅ Concluído | 21/05/2026 |
-| 5 | Inspeções CRUD + PostGIS | ⬜ Pendente | — |
+| 5 | Inspeções CRUD + PostGIS | 🔄 Em andamento | 21/05/2026 |
 | 6 | Mídia — upload/download MinIO | ⬜ Pendente | — |
 | 7 | IA (HuggingFace) + PDF (WeasyPrint) | ⬜ Pendente | — |
 | 8 | Testes + cobertura ≥ 70% | ⬜ Pendente | — |
@@ -584,3 +584,39 @@ Task 4.5: Validar login via PowerShell e iniciar Sprint 5.
 ### Próxima ação
 
 Sprint 5: Implementação do CRUD de Inspeções com integração PostGIS.
+
+---
+
+## Task 16
+
+**Data:** 21/05/2026
+**Sprint:** 5 - Inspeções CRUD + PostGIS
+**Sessão:** Schemas de Inspeção (Task 5.1)
+
+### O que foi feito
+
+- Preenchido o `app/schemas/inspection.py` com as definições Pydantic v2.
+- Implementado schema `LocationPoint` para expor a localização como latitude e longitude.
+- Desenvolvido decodificador de WKB em `LocationPoint.parse_wkb` e `field_validator` para converter os bytes do PostGIS/GeoAlchemy2 de forma transparente, garantindo que nenhum WKB/WKT seja exposto na API.
+- Adicionado `InspectionCreate` com validações de limites geográficos (`lat` entre -90/90, `lon` entre -180/180).
+- Adicionado `InspectionUpdate` para modificações parciais (status, descrição, assigned_to, human_label).
+- Adicionado `InspectionOut` contendo os dados do modelo, convertendo location e validando relacionamento `inspector: UserOut`.
+
+### Estado dos arquivos tocados
+
+- `backend/app/schemas/inspection.py` — preenchido e completo.
+- `backend/app/schemas/user.py` — atualizado com inclusão de `UserOut` que era necessário.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Restrição para evitar a exposição do WKB foi tratada de forma correta e sem utilizar dependências desnecessárias (conversão raw de bytes com struct).
+- Modelos estão usando Pydantic v2 com `model_config = ConfigDict(from_attributes=True)`.
+
+### O que ficou pendente
+
+- Implementação do Service (CRUD) das inspeções (`app/services/inspection_service.py`) e do router correspondente.
+
+### Próxima ação
+
+Task 5.2: Implementar o Service de Inspeções, lidando com lógica do PostGIS e regras de negócio.
