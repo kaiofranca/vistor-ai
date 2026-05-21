@@ -78,3 +78,7 @@ class InspectionOut(BaseModel):
         if isinstance(v, LocationPoint):
             return v
         return LocationPoint.parse_wkb(v)
+
+class InspectionNearby(BaseModel):
+    inspection: InspectionOut
+    distance_m: float

@@ -657,3 +657,47 @@ Task 5.2: Implementar o Service de Inspeções, lidando com lógica do PostGIS e
 ### Próxima ação
 
 Task 5.3: Implementar os routers de inspeção e geoespacial.
+
+---
+
+## Task 18
+
+**Data:** 21/05/2026
+**Sprint:** 5 - Inspeções CRUD + PostGIS
+**Sessão:** Routers de Inspeção e Geoespacial (Task 5.3)
+
+### O que foi feito
+
+- Implementado `app/routers/inspections.py`:
+  - `POST /`: Criação de inspeção vinculada ao usuário autenticado (201 Created).
+  - `GET /`: Listagem paginada com suporte a filtros de status e cursor.
+  - `GET /{id}`: Detalhe de inspeção com validação de propriedade/atribuição.
+  - `PATCH /{id}`: Atualização parcial de dados.
+  - `DELETE /{id}`: Remoção lógica (204 No Content).
+- Implementado `app/routers/geo.py`:
+  - `GET /nearby`: Busca geoespacial com validação de limites (lat/lon) e raio (50m - 5000m).
+  - `GET /export`: Exportação de dados em formatos GeoJSON e CSV com filtros opcionais, utilizando `StreamingResponse`.
+- Criado `app/services/geo_service.py` para lidar com a lógica de geração de arquivos para exportação (CSV/GeoJSON).
+- Adicionado schema `InspectionNearby` em `app/schemas/inspection.py` para incluir a distância nos resultados de proximidade.
+
+### Estado dos arquivos tocados
+
+- `backend/app/routers/inspections.py` — completo.
+- `backend/app/routers/geo.py` — completo.
+- `backend/app/services/geo_service.py` — criado e funcional.
+- `backend/app/schemas/inspection.py` — atualizado.
+- `PROGRESS.md` — Sprint 5 finalizada.
+
+### Validações que passaram
+
+- Todos os endpoints possuem autenticação obrigatória via `Depends(get_current_user)`.
+- Routers seguem o padrão de delegar lógica aos services, mantendo-se puramente declarativos.
+- Validações de entrada (`Query` parameters) garantem integridade dos dados geográficos.
+
+### O que ficou pendente
+
+- Nada referente a Sprint 5.
+
+### Próxima ação
+
+Sprint 6: Mídia — upload/download MinIO.
