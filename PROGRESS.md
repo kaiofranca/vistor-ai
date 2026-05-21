@@ -427,3 +427,45 @@ Iniciar Sprint 4
 ### Próxima ação
 
 Task 4.2: Implementar lógica de segurança e JWT no backend.
+
+---
+
+## Task 12
+
+**Data:** 21/05/2026
+**Sprint:** 4 - Autenticação
+**Sessão:** Serviços de Autenticação e JWT (Task 4.2)
+
+### O que foi feito
+
+- Implementado `app/services/token_service.py`:
+  - `create_access_token`: Geração de JWT com tempo de expiração configurável.
+  - `decode_access_token`: Decodificação e validação de tokens JWT.
+- Implementado `app/services/auth_service.py`:
+  - `create_user`: Cadastro com hash de senha (bcrypt 12 rounds) e bloqueio de email duplicado.
+  - `login`: Autenticação com verificação de status ativo, controle de tentativas falhas (bloqueio de 15 min após 5 falhas) e geração de tokens.
+  - `refresh_token`: Rotação de refresh tokens armazenados no Redis para segurança máxima.
+  - `logout`: Invalidação de refresh tokens no Redis (idempotente).
+- Mensagens de erro de negócio padronizadas em português via `HTTPException`.
+- Utilizado `AsyncSession` (SQLAlchemy) e `Redis` (asyncio) para operações não bloqueantes.
+
+### Estado dos arquivos tocados
+
+- `backend/app/services/token_service.py` — completo.
+- `backend/app/services/auth_service.py` — completo.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Lógica de hash de senha segue padrões de segurança (rounds=12).
+- TTL de tokens respeita configurações do `app/config.py`.
+- Fluxo de rotação de refresh token deleta o token antigo.
+
+### O que ficou pendente
+
+- Implementação dos endpoints em `routers/auth.py`.
+- Implementação das dependências `get_current_user` e `require_role`.
+
+### Próxima ação
+
+Task 4.3: Implementar router de autenticação e dependências de segurança.
