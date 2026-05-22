@@ -68,6 +68,7 @@ async def get_presigned_url(
     await db.refresh(media)
     
     return PresignedUrlResponse(
+        id=media.id,
         upload_url=upload_url,
         key=key,
         expires_in=3600

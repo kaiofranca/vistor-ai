@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 from app.models.media import MediaType
 
 class PresignedUrlResponse(BaseModel):
+    id: UUID
     upload_url: str
     key: str
     expires_in: int = 3600
