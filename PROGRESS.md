@@ -11,8 +11,8 @@
 | 2 | FastAPI esqueleto + health endpoint | ✅ Concluído | 05/05/2026 |
 | 3 | Models SQLAlchemy + Migrations Alembic | ✅ Concluído | 08/05/2026 |
 | 4 | Autenticação (JWT, refresh, blacklist) | ✅ Concluído | 21/05/2026 |
-| 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 21/05/2026 |
-| 6 | Mídia — upload/download MinIO | ⬜ Pendente | — |
+| 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 22/05/2026 |
+| 6 | Mídia — upload/download MinIO | 🔄 Em andamento | 22/05/2026 |
 | 7 | IA (HuggingFace) + PDF (WeasyPrint) | ⬜ Pendente | — |
 | 8 | Testes + cobertura ≥ 70% | ⬜ Pendente | — |
 
@@ -745,3 +745,43 @@ Task 5.4: Testes de integração das Inspeções
 ### Próxima ação
 
 Sprint 6: Mídia — Implementação de upload/download MinIO e integração com inspeções.
+
+---
+
+## Task 20
+
+**Data:** 22/05/2026
+**Sprint:** 6 - Mídia — upload/download MinIO
+**Sessão:** Integração com MinIO e Processamento de Imagem (Task 6.1)
+
+### O que foi feito
+
+- Implementado `app/services/storage_service.py`:
+  - `get_presigned_upload_url`: Geração de URLs pré-assinadas para upload via PUT.
+  - `get_presigned_download_url`: Geração de URLs pré-assinadas para download via GET (TTL 1h).
+  - `delete_object`: Exclusão de objetos no MinIO.
+  - `ensure_buckets_exist`: Criação automática dos buckets (`inspections`, `thumbnails`, `reports`) no startup.
+  - `generate_thumbnail`: Redimensionamento assíncrono para 300x300 (Pillow) e upload para bucket de thumbnails.
+- Atualizado `app/main.py`:
+  - Implementado `lifespan` context manager para garantir que a infraestrutura de buckets esteja pronta ao iniciar a API.
+- Configurada integração assíncrona com `aiobotocore` respeitando o ambiente (SSL desabilitado em dev).
+
+### Estado dos arquivos tocados
+
+- `backend/app/services/storage_service.py` — completo.
+- `backend/app/main.py` — atualizado.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Gerenciamento de contexto do `aiobotocore` configurado para evitar singletons e vazamento de conexões.
+- Tratamento de erros centralizado com `HTTPException 503`.
+
+### O que ficou pendente
+
+- Implementação do router de mídias (`routers/media.py`) para consumir o `storage_service`.
+- Integração do upload com a criação de inspeções.
+
+### Próxima ação
+
+Task 6.2: Implementar o router de mídias e lógica de presign URLs.
