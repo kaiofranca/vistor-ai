@@ -1,5 +1,8 @@
 # Vistor AI — Progress
 
+Arquivo de atualização de todo o desenvolvimento do **Vistor AI**. Esse documento
+foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGRESS_MOBILE.md`](./PROGRESS_MOBILE.md).
+
 ---
 
 ## Status das Sprints
@@ -7,27 +10,34 @@
 | Sprint | Descrição | Status | Concluída em |
 |---|---|---|---|
 | 0 | Arquivos base (gitignore, env, docs, estrutura) | ✅ Concluído | 27/04/2026 |
-| 1 | Docker Compose + Dependências (Task 1.1 a 1.3) | ✅ Concluído | 05/05/2026 |
+| 1 | Docker Compose + Dependências | ✅ Concluído | 05/05/2026 |
 | 2 | FastAPI esqueleto + health endpoint | ✅ Concluído | 05/05/2026 |
 | 3 | Models SQLAlchemy + Migrations Alembic | ✅ Concluído | 08/05/2026 |
 | 4 | Autenticação (JWT, refresh, blacklist) | ✅ Concluído | 21/05/2026 |
-| 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 21/05/2026 |
-| 6 | Mídia — upload/download MinIO | ⬜ Pendente | — |
+| 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 22/05/2026 |
+| 6 | Mídia — upload/download MinIO | ✅ Concluído | 22/05/2026 |
 | 7 | IA (HuggingFace) + PDF (WeasyPrint) | ⬜ Pendente | — |
 | 8 | Testes + cobertura ≥ 70% | ⬜ Pendente | — |
 
+## Checklist antes do Mobile
+
+| Status | Demandas |
+|----|----|
+| [✅] | docker compose up -d → todos os serviços healthy |
+| [✅] | GET /health → {"status":"ok","db":"connected"} |
+| [✅] | alembic upgrade head → sem erro |
+| [✅] | 5 tabelas + índice GIST confirmados no banco |
+| [✅] | POST /auth/login → retorna tokens |
+| [✅] | POST /inspections/ → cria com coordenadas GPS |
+| [✅] | GET /geo/nearby → retorna inspeções no raio |
+| [✅] | POST /media/presign → retorna URL de upload |
+| [🔄] | POST /reports/generate → gera PDF |
+| [⬜] | pytest --cov=app → cobertura >= 70% |
+| [⬜] | git tag v0.1.0-backend existe |
+| [✅] | PROGRESS.md atualizado |
+| [✅] | Nenhum TODO crítico no código |
+
 > Legenda: ⬜ Pendente · 🔄 Em andamento · ✅ Concluído · ⚠️ Bloqueado
-
-### Mobile
-
-| Sprint | Descrição | Status | Concluída em |
-|---|---|---|---|
-| 9 | Fundação Flutter (tema, router, api client) | ⬜ Pendente | — |
-| 10 | Auth + Home + Nova Inspeção | ⬜ Pendente | — |
-| 11 | Detalhe de Inspeção + Gerar Laudo | ⬜ Pendente | — |
-| 12 | Mapa + Heatmap | ⬜ Pendente | — |
-| 13 | Laudos + Perfil + Offline | ⬜ Pendente | — |
-| 14 | Gestão de Equipe + Exportar + Usuários | ⬜ Pendente | — |
 
 ---
 
@@ -73,7 +83,7 @@ completa de `backend/`. Depois abrir sessão da Sprint 1 para o `docker-compose.
 
 **Data:** 29/04/2026
 **Sprint:** 1 - Docker Compose + Dependências
-**Sessão:** Configuração da Infraestrutura
+**Sessão:** Configuração da Infraestrutura (Task 1.1)
 
 ### O que foi feito
 
@@ -170,7 +180,7 @@ Sprint 2: Criação do esqueleto FastAPI e endpoint de health check.
 
 **Data:** 05/05/2026
 **Sprint:** 2 - FastAPI esqueleto + health endpoint
-**Sessão:** Configuração e Conexão com Banco de Dados
+**Sessão:** Configuração e Conexão com Banco de Dados (Task 2.1)
 
 ### O que foi feito
 
@@ -204,7 +214,7 @@ Finalizar a Sprint 2 com a implementação do `main.py` e validação do health 
 
 **Data:** 05/05/2026
 **Sprint:** 2 - FastAPI esqueleto + health endpoint
-**Sessão:** Esqueleto FastAPI e Routers
+**Sessão:** Esqueleto FastAPI e Routers (Task 2.2)
 
 ### O que foi feito
 
@@ -237,7 +247,7 @@ Iniciar Sprint 3: Definição dos Models SQLAlchemy e Migrations Alembic.
 
 **Data:** 05/05/2026
 **Sprint:** 2 - FastAPI esqueleto + health endpoint
-**Sessão:** Ajustes de Build e Configuração
+**Sessão:** Ajustes de Build e Configuração (Task 2.3)
 
 ### O que foi feito
 
@@ -745,3 +755,88 @@ Task 5.4: Testes de integração das Inspeções
 ### Próxima ação
 
 Sprint 6: Mídia — Implementação de upload/download MinIO e integração com inspeções.
+
+---
+
+## Task 20
+
+**Data:** 22/05/2026
+**Sprint:** 6 - Mídia — upload/download MinIO
+**Sessão:** Integração com MinIO e Processamento de Imagem (Task 6.1)
+
+### O que foi feito
+
+- Implementado `app/services/storage_service.py`:
+  - `get_presigned_upload_url`: Geração de URLs pré-assinadas para upload via PUT.
+  - `get_presigned_download_url`: Geração de URLs pré-assinadas para download via GET (TTL 1h).
+  - `delete_object`: Exclusão de objetos no MinIO.
+  - `ensure_buckets_exist`: Criação automática dos buckets (`inspections`, `thumbnails`, `reports`) no startup.
+  - `generate_thumbnail`: Redimensionamento assíncrono para 300x300 (Pillow) e upload para bucket de thumbnails.
+- Atualizado `app/main.py`:
+  - Implementado `lifespan` context manager para garantir que a infraestrutura de buckets esteja pronta ao iniciar a API.
+- Configurada integração assíncrona com `aiobotocore` respeitando o ambiente (SSL desabilitado em dev).
+
+### Estado dos arquivos tocados
+
+- `backend/app/services/storage_service.py` — completo.
+- `backend/app/main.py` — atualizado.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Gerenciamento de contexto do `aiobotocore` configurado para evitar singletons e vazamento de conexões.
+- Tratamento de erros centralizado com `HTTPException 503`.
+
+### O que ficou pendente
+
+- Implementação do router de mídias (`routers/media.py`) para consumir o `storage_service`.
+- Integração do upload com a criação de inspeções.
+
+### Próxima ação
+
+Task 6.2: Implementar o router de mídias e lógica de presign URLs.
+
+---
+
+## Task 21
+
+**Data:** 22/05/2026
+**Sprint:** 6 - Mídia — upload/download MinIO
+**Sessão:** Router de Mídias e Background Tasks (Task 6.2)
+
+### O que foi feito
+
+- Criado `app/schemas/media.py` com suporte a Pydantic v2 para respostas de mídias e presigned URLs.
+- Implementado `app/routers/media.py`:
+  - `POST /media/presign`: Gera URL de upload com validação rigorosa de MIME type (`python-magic`) e tamanho (20MB fotos / 100MB vídeos).
+  - `POST /media/{id}/confirm`: Confirma o upload e dispara tarefas em background.
+  - `GET /media/{id}/url`: Gera URL temporária de download (1h) com validação de IDOR.
+- Desenvolvido processamento em background `process_media_upload`:
+  - Verificação de integridade do arquivo pós-upload usando `python-magic`.
+  - Geração automática de thumbnails para imagens.
+- Corrigido erro de startup no Docker:
+  - Adicionada validação de protocolo (`http://` ou `https://`) para `MINIO_ENDPOINT` no `app/config.py`.
+  - Atualizado `.env.example` com o formato de endpoint correto.
+
+### Estado dos arquivos tocados
+
+- `backend/app/schemas/media.py` — completo.
+- `backend/app/routers/media.py` — completo e funcional.
+- `backend/app/models/media.py` — atualizado com campo `status`.
+- `backend/app/config.py` — validadores adicionados.
+- `.env.example` — atualizado.
+- `PROGRESS.md` — Sprint 6 concluída.
+
+### Validações que passaram
+
+- Validação de MIME type baseada no conteúdo do arquivo (magic bytes).
+- Fluxo de presign -> upload -> confirm validado via curl.
+- Startup da aplicação no Docker estabilizado após correção do endpoint.
+
+### O que ficou pendente
+
+- Nada referente a Sprint 6.
+
+### Próxima ação
+
+Sprint 7: IA (HuggingFace) + PDF (WeasyPrint)
