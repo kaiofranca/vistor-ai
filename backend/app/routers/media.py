@@ -122,6 +122,9 @@ async def process_media_upload(media_id: str):
                 thumb_key = await storage_service.generate_thumbnail(file_bytes, media.minio_key)
                 media.thumbnail_key = thumb_key
                 await db.commit()
+                
+                from app.services import ai_service
+                await ai_service.process_inspection_media(media.inspection_id, db, media.id)
                         
         except Exception as e:
             import logging
