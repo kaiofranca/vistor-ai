@@ -15,8 +15,8 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | 3 | Models SQLAlchemy + Migrations Alembic | ✅ Concluído | 08/05/2026 |
 | 4 | Autenticação (JWT, refresh, blacklist) | ✅ Concluído | 21/05/2026 |
 | 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 22/05/2026 |
-| 6 | Mídia — upload/download MinIO | ✅ Concluído | 22/05/2026 |
-| 7 | IA (HuggingFace) + PDF (WeasyPrint) | ⬜ Pendente | — |
+| 6 | Mídia — upload/download MinIO | ✅ Concluído | 23/05/2026 |
+| 7 | IA (HuggingFace) + PDF (WeasyPrint) | 🔄 Em andamento | 23/05/2026 |
 | 8 | Testes + cobertura ≥ 70% | ⬜ Pendente | — |
 
 ## Checklist antes do Mobile
@@ -31,6 +31,7 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | [✅] | POST /inspections/ → cria com coordenadas GPS |
 | [✅] | GET /geo/nearby → retorna inspeções no raio |
 | [✅] | POST /media/presign → retorna URL de upload |
+| [✅] | IA (HuggingFace) → classifica imagem e mapeia severidade |
 | [🔄] | POST /reports/generate → gera PDF |
 | [⬜] | pytest --cov=app → cobertura >= 70% |
 | [⬜] | git tag v0.1.0-backend existe |
@@ -876,3 +877,39 @@ Sprint 7: IA (HuggingFace) + PDF (WeasyPrint)
 ### Próxima ação
 
 Sprint 7: IA (HuggingFace Inference API) e Geração de PDF.
+
+---
+
+## Task 23
+
+**Data:** 23/05/2026
+**Sprint:** 7 - IA (HuggingFace) + PDF (WeasyPrint)
+**Sessão:** Implementação do Serviço de IA (Task 7.1)
+
+### O que foi feito
+
+- Implementado `app/services/ai_service.py`:
+  - `classify_image`: Integração com HuggingFace Inference API (`google/vit-base-patch16-224`) via `httpx`.
+  - `_classify_local_fallback`: Mecanismo de contingência para falhas de API ou rede.
+  - `map_severity`: Lógica de mapeamento de severidade baseada em score e labels de risco (crack, damage, etc).
+  - `process_inspection_media`: Orquestração completa de download do MinIO, classificação e atualização da inspeção.
+- Integrado logs de auditoria para a ação `ai_classified`.
+- Configurado tratamento de erros resiliente para garantir que o processo de inspeção não seja interrompido por falhas na IA.
+
+### Estado dos arquivos tocados
+
+- `backend/app/services/ai_service.py` — completo.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Validação manual da lógica de fallback em ambiente com restrição de DNS.
+- Verificação da estrutura de retorno e mapeamento de severidade.
+
+### O que ficou pendente
+
+- Task 7.2: Implementação da geração de laudos em PDF via WeasyPrint.
+
+### Próxima ação
+
+Task 7.2: Desenvolver o `pdf_service.py` e os templates Jinja2 para geração de laudos técnicos.
