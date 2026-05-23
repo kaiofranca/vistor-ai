@@ -16,6 +16,8 @@ htmlcov/
 .coverage
 coverage.xml
 dist/
+# arquivo de teste de endpoints
+backend/seed_user.py 
 
 # Alembic
 alembic/versions/*.pyc

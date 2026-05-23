@@ -18,11 +18,23 @@ def get_s3_client_context():
         use_ssl=settings.ENVIRONMENT != "development",
     )
 
+def get_external_s3_client_context():
+    """Contexto para gerar URLs que o cliente externo (App/Browser) consegue acessar."""
+    session = get_session()
+    return session.create_client(
+        "s3",
+        region_name="us-east-1",
+        endpoint_url=settings.MINIO_EXTERNAL_ENDPOINT,
+        aws_access_key_id=settings.MINIO_USER,
+        aws_secret_access_key=settings.MINIO_PASSWORD,
+        use_ssl=settings.ENVIRONMENT != "development",
+    )
+
 async def get_presigned_upload_url(
     bucket: str, key: str, content_type: str, expires: int = 3600
 ) -> str:
     try:
-        async with get_s3_client_context() as client:
+        async with get_external_s3_client_context() as client:
             return await client.generate_presigned_url(
                 "put_object",
                 Params={
@@ -41,7 +53,7 @@ async def get_presigned_upload_url(
 
 async def get_presigned_download_url(bucket: str, key: str, expires: int = 3600) -> str:
     try:
-        async with get_s3_client_context() as client:
+        async with get_external_s3_client_context() as client:
             return await client.generate_presigned_url(
                 "get_object",
                 Params={

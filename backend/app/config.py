@@ -8,12 +8,13 @@ class Settings(BaseSettings):
 
     # MinIO
     MINIO_ENDPOINT: str
+    MINIO_EXTERNAL_ENDPOINT: str = "http://localhost:9000"
     MINIO_USER: str
     MINIO_PASSWORD: str
 
-    @field_validator("MINIO_ENDPOINT")
+    @field_validator("MINIO_ENDPOINT", "MINIO_EXTERNAL_ENDPOINT")
     @classmethod
-    def validate_minio_endpoint(cls, v: str) -> str:
+    def validate_minio_endpoints(cls, v: str) -> str:
         if not v.startswith(("http://", "https://")):
             raise ValueError("MINIO_ENDPOINT deve iniciar com http:// ou https://")
         return v

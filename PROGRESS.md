@@ -840,3 +840,39 @@ Task 6.2: Implementar o router de mídias e lógica de presign URLs.
 ### Próxima ação
 
 Sprint 7: IA (HuggingFace) + PDF (WeasyPrint)
+
+---
+
+## Task 22
+
+**Data:** 23/05/2026
+**Sprint:** 6 - Mídia — upload/download MinIO
+**Sessão:** Ajustes Estruturais e Acesso Externo (Task 6.3 - Fix)
+
+### O que foi feito
+
+- Criada migration `0006_add_media_status` para adicionar a coluna `status` e o Enum `media_status_enum` na tabela `media`, corrigindo a discrepância entre o modelo SQLAlchemy e o banco de dados.
+- Implementada a variável `MINIO_EXTERNAL_ENDPOINT` no `config.py` e `.env` para resolver o problema de resolução de host (`minio`) em acessos fora do Docker (cURL, Mobile).
+- Refatorado `storage_service.py` para utilizar o endpoint externo na geração de URLs pré-assinadas (Presigned URLs), garantindo acessibilidade para o aplicativo Flutter.
+- Criado script `seed_user.py` para facilitar a criação de usuários de teste enquanto o módulo de Admin não é finalizado.
+
+### Estado dos arquivos tocados
+
+- `backend/alembic/versions/0006_add_media_status.py` — criado.
+- `backend/app/config.py` — atualizado.
+- `backend/app/services/storage_service.py` — refatorado.
+- `backend/seed_user.py` — criado.
+- `.env` e `.env.example` — atualizados.
+
+### Validações que passaram
+
+- Fluxo completo validado via PowerShell: Login -> Criar Inspeção -> Presign -> Upload (PUT) -> Confirmar.
+- URLs pré-assinadas agora apontam corretamente para `localhost:9000` em ambiente de desenvolvimento.
+
+### O que ficou pendente
+
+- Ajustar as configurações do `conftest.py` para que os testes automatizados funcionem corretamente dentro do ambiente Docker (resolução de host `db`).
+
+### Próxima ação
+
+Sprint 7: IA (HuggingFace Inference API) e Geração de PDF.
