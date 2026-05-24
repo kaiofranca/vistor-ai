@@ -20,6 +20,7 @@ dist/
 # arquivos de testes
 backend/seed_user.py 
 backend/test_ai.py
+backend/workflow.md
 
 # Alembic
 alembic/versions/*.pyc
