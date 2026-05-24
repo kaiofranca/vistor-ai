@@ -100,8 +100,8 @@ async def confirm_upload(
     return media
 
 async def process_media_upload(media_id: str):
-    from app.database import async_session_maker
-    async with async_session_maker() as db:
+    from app.database import AsyncSessionLocal
+    async with AsyncSessionLocal() as db:
         query = select(Media).where(Media.id == media_id)
         result = await db.execute(query)
         media = result.scalar_one_or_none()
@@ -122,6 +122,9 @@ async def process_media_upload(media_id: str):
                 thumb_key = await storage_service.generate_thumbnail(file_bytes, media.minio_key)
                 media.thumbnail_key = thumb_key
                 await db.commit()
+                
+                from app.services import ai_service
+                await ai_service.process_inspection_media(media.inspection_id, db, media.id)
                         
         except Exception as e:
             import logging

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Laudo de Inspeção Técnica - {{ inspection.id }}</title>
+    <style>
+        @page {
+            margin: 2cm;
+            @bottom-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-size: 9pt;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 18pt;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            background-color: #f2f2f2;
+            padding: 5px 10px;
+            font-weight: bold;
+            border-left: 4px solid #2c3e50;
+            margin-bottom: 10px;
+        }
+        .grid {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .grid-row {
+            display: table-row;
+        }
+        .grid-cell {
+            display: table-cell;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        .label {
+            font-weight: bold;
+            width: 30%;
+        }
+        .photo-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .photo {
+            max-width: 100%;
+            max-height: 400px;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+        }
+        .severity {
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: white;
+        }
+        .severity-critical { background-color: #e74c3c; }
+        .severity-moderate { background-color: #f39c12; }
+        .severity-low { background-color: #2ecc71; }
+        .severity-pending_review { background-color: #95a5a6; }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 9pt;
+            color: #777;
+        }
+        .hash {
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .signature-box {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .signature-line {
+            width: 250px;
+            border-top: 1px solid #333;
+            margin: 50px auto 5px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Laudo de Inspeção Técnica</h1>
+        <p>Vistor AI - Sistema de Inspeção Inteligente</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Informações Gerais</div>
+        <div class="grid">
+            <div class="grid-row">
+                <div class="grid-cell label">ID da Inspeção:</div>
+                <div class="grid-cell">{{ inspection.id }}</div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell label">Data/Hora:</div>
+                <div class="grid-cell">{{ inspection.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell label">Inspetor:</div>
+                <div class="grid-cell">{{ inspection.inspector.name }} ({{ inspection.inspector.email }})</div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell label">Categoria:</div>
+                <div class="grid-cell">{{ inspection.category }}</div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell label">Status Atual:</div>
+                <div class="grid-cell">{{ inspection.status.value }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Localização</div>
+        <div class="grid">
+            <div class="grid-row">
+                <div class="grid-cell label">Coordenadas:</div>
+                <div class="grid-cell">{{ lat }}, {{ lon }}</div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell label">Precisão GPS:</div>
+                <div class="grid-cell">{{ inspection.gps_accuracy }}m</div>
+            </div>
+            {% if inspection.address %}
+            <div class="grid-row">
+                <div class="grid-cell label">Endereço:</div>
+                <div class="grid-cell">{{ inspection.address }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Análise de IA e Severidade</div>
+        <div class="grid">
+            <div class="grid-row">
+                <div class="grid-cell label">Severidade:</div>
+                <div class="grid-cell">
+                    <span class="severity severity-{{ inspection.severity.value if inspection.severity else 'pending_review' }}">
+                        {{ inspection.severity.value if inspection.severity else 'Pendente' }}
+                    </span>
+                </div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell label">Classificação IA:</div>
+                <div class="grid-cell">{{ inspection.ai_label or 'Não classificado' }}</div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-cell label">Confiança IA:</div>
+                <div class="grid-cell">{{ "%.2f"|format(inspection.ai_score * 100) if inspection.ai_score else '0.00' }}%</div>
+            </div>
+            {% if inspection.human_label %}
+            <div class="grid-row">
+                <div class="grid-cell label">Correção Humana:</div>
+                <div class="grid-cell">{{ inspection.human_label }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Descrição</div>
+        <div style="border: 1px solid #ddd; padding: 10px; min-height: 50px; background-color: #fafafa;">
+            {{ inspection.description or 'Nenhuma descrição fornecida.' }}
+        </div>
+    </div>
+
+    {% if media_urls %}
+    <div class="section">
+        <div class="section-title">Evidências Fotográficas</div>
+        {% for url in media_urls %}
+        <div class="photo-container">
+            <img src="{{ url }}" class="photo" alt="Foto da inspeção">
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>Laudo gerado eletronicamente pelo sistema Vistor AI.</p>
+        <p>A integridade deste documento pode ser verificada através do hash SHA-256:</p>
+        <p class="hash">{{ report_sha256 if report_sha256 else 'HASH_PENDENTE' }}</p>
+        
+        {% if signature_key %}
+        <div class="signature-box">
+            <div class="signature-line"></div>
+            <p>Assinado Digitalmente (ID: {{ signature_key }})</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

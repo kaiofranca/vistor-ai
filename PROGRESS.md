@@ -15,8 +15,8 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | 3 | Models SQLAlchemy + Migrations Alembic | ✅ Concluído | 08/05/2026 |
 | 4 | Autenticação (JWT, refresh, blacklist) | ✅ Concluído | 21/05/2026 |
 | 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 22/05/2026 |
-| 6 | Mídia — upload/download MinIO | ✅ Concluído | 22/05/2026 |
-| 7 | IA (HuggingFace) + PDF (WeasyPrint) | ⬜ Pendente | — |
+| 6 | Mídia — upload/download MinIO | ✅ Concluído | 23/05/2026 |
+| 7 | IA (HuggingFace) + PDF (WeasyPrint) | ✅ Concluído | 24/05/2026 |
 | 8 | Testes + cobertura ≥ 70% | ⬜ Pendente | — |
 
 ## Checklist antes do Mobile
@@ -31,7 +31,8 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | [✅] | POST /inspections/ → cria com coordenadas GPS |
 | [✅] | GET /geo/nearby → retorna inspeções no raio |
 | [✅] | POST /media/presign → retorna URL de upload |
-| [🔄] | POST /reports/generate → gera PDF |
+| [✅] | IA (HuggingFace) → classifica imagem e mapeia severidade |
+| [✅] | POST /reports/generate → gera PDF com hash SHA-256 |
 | [⬜] | pytest --cov=app → cobertura >= 70% |
 | [⬜] | git tag v0.1.0-backend existe |
 | [✅] | PROGRESS.md atualizado |
@@ -378,9 +379,9 @@ Task 3.3: Gerar e aplicar a primeira migration para criar as tabelas no PostgreS
 
 - `backend/alembic/versions/0001_create_users.py` — completo.
 - `backend/alembic/versions/0002_create_inspections.py` — completo.
-- `backend/alembic/versions/0003_create_media.py` — completo.
-- `backend/alembic/versions/0004_create_reports.py` — completo.
-- `backend/alembic/versions/0005_create_audit_log.py` — completo.
+- `backend/alembic/versions/0003_create_media.py" — completo.
+- `backend/alembic/versions/0004_create_reports.py" — completo.
+- `backend/alembic/versions/0005_create_audit_log.py" — completo.
 - `PROGRESS.md` — Sprint 3 em fase final.
 
 ### Validações que passaram
@@ -462,7 +463,7 @@ Task 4.2: Implementar lógica de segurança e JWT no backend.
 ### Estado dos arquivos tocados
 
 - `backend/app/services/token_service.py` — completo.
-- `backend/app/services/auth_service.py` — completo.
+- `backend/app/services/auth_service.py" — completo.
 - `PROGRESS.md` — atualizado.
 
 ### Validações que passaram
@@ -504,8 +505,8 @@ Task 4.3: Implementar router de autenticação e dependências de segurança.
 
 - `backend/app/dependencies/db.py` — completo.
 - `backend/app/dependencies/auth.py` — completo.
-- `backend/app/services/audit_service.py` — completo.
-- `backend/app/routers/auth.py` — completo.
+- `backend/app/services/audit_service.py" — completo.
+- `backend/app/routers/auth.py" — completo.
 - `PROGRESS.md` — Sprint 4 em fase avançada.
 
 ### Validações que passaram
@@ -542,7 +543,7 @@ Task 4.4: Implementar gestão de usuários e registro inicial.
 ### Estado dos arquivos tocados
 
 - `backend/app/services/auth_service.py` — corrigido e otimizado.
-- `backend/app/services/audit_service.py` — robustez para UUIDs adicionada.
+- `backend/app/services/audit_service.py" — robustez para UUIDs adicionada.
 - `PROGRESS.md` — atualizado.
 
 ### Validações que passaram
@@ -582,7 +583,7 @@ Task 4.5: Validar login via PowerShell e iniciar Sprint 5.
 ### Estado dos arquivos tocados
 
 - `backend/app/tests/conftest.py` — completo.
-- `backend/app/tests/test_auth.py` — completo (11/11 casos passando).
+- `backend/app/tests/test_auth.py" — completo (11/11 casos passando).
 - `PROGRESS.md` — atualizado.
 
 ### Validações que passaram
@@ -615,7 +616,7 @@ Sprint 5: Implementação do CRUD de Inspeções com integração PostGIS.
 ### Estado dos arquivos tocados
 
 - `backend/app/schemas/inspection.py` — completo.
-- `backend/app/schemas/user.py` — atualizado com inclusão de `UserOut`.
+- `backend/app/schemas/user.py" — atualizado com inclusão de`UserOut`.
 - `PROGRESS.md` — atualizado.
 
 ### Validações que passaram
@@ -693,9 +694,9 @@ Task 5.3: Implementar os routers de inspeção e geoespacial.
 ### Estado dos arquivos tocados
 
 - `backend/app/routers/inspections.py` — completo.
-- `backend/app/routers/geo.py` — completo.
-- `backend/app/services/geo_service.py` — criado e funcional.
-- `backend/app/schemas/inspection.py` — atualizado.
+- `backend/app/routers/geo.py" — completo.
+- `backend/app/services/geo_service.py" — criado e funcional.
+- `backend/app/schemas/inspection.py" — atualizado.
 - `PROGRESS.md` — Sprint 5 finalizada.
 
 ### Validações que passaram
@@ -737,9 +738,9 @@ Task 5.4: Testes de integração das Inspeções
 ### Estado dos arquivos tocados
 
 - `backend/app/tests/test_inspections.py` — 100% dos testes passando (10/10).
-- `backend/app/services/inspection_service.py` — refinado e corrigido.
-- `backend/app/models/inspection.py` — atualizado com relacionamentos.
-- `backend/app/tests/conftest.py` — fixtures atualizadas.
+- `backend/app/services/inspection_service.py" — refinado e corrigido.
+- `backend/app/models/inspection.py" — atualizado com relacionamentos.
+- `backend/app/tests/conftest.py" — fixtures atualizadas.
 - `PROGRESS.md` — Sprint 5 concluída com sucesso.
 
 ### Validações que passaram
@@ -779,7 +780,7 @@ Sprint 6: Mídia — Implementação de upload/download MinIO e integração com
 ### Estado dos arquivos tocados
 
 - `backend/app/services/storage_service.py` — completo.
-- `backend/app/main.py` — atualizado.
+- `backend/app/main.py" — atualizado.
 - `PROGRESS.md` — atualizado.
 
 ### Validações que passaram
@@ -821,9 +822,9 @@ Task 6.2: Implementar o router de mídias e lógica de presign URLs.
 ### Estado dos arquivos tocados
 
 - `backend/app/schemas/media.py` — completo.
-- `backend/app/routers/media.py` — completo e funcional.
-- `backend/app/models/media.py` — atualizado com campo `status`.
-- `backend/app/config.py` — validadores adicionados.
+- `backend/app/routers/media.py" — completo e funcional.
+- `backend/app/models/media.py" — atualizado com campo`status`.
+- `backend/app/config.py" — validadores adicionados.
 - `.env.example` — atualizado.
 - `PROGRESS.md` — Sprint 6 concluída.
 
@@ -840,3 +841,155 @@ Task 6.2: Implementar o router de mídias e lógica de presign URLs.
 ### Próxima ação
 
 Sprint 7: IA (HuggingFace) + PDF (WeasyPrint)
+
+---
+
+## Task 22
+
+**Data:** 23/05/2026
+**Sprint:** 6 - Mídia — upload/download MinIO
+**Sessão:** Ajustes Estruturais e Acesso Externo (Task 6.3 - Fix)
+
+### O que foi feito
+
+- Criada migration `0006_add_media_status` para adicionar a coluna `status` e o Enum `media_status_enum` na tabela `media`, corrigindo a discrepância entre o modelo SQLAlchemy e o banco de dados.
+- Implementada a variável `MINIO_EXTERNAL_ENDPOINT` no `config.py` e `.env` para resolver o problema de resolução de host (`minio`) em acessos fora do Docker (cURL, Mobile).
+- Refatorado `storage_service.py` para utilizar o endpoint externo na geração de URLs pré-assinadas (Presigned URLs), garantindo acessibilidade para o aplicativo Flutter.
+- Criado script `seed_user.py` para facilitar a criação de usuários de teste enquanto o módulo de Admin não é finalizado.
+
+### Estado dos arquivos tocados
+
+- `backend/alembic/versions/0006_add_media_status.py` — criado.
+- `backend/app/config.py" — atualizado.
+- `backend/app/services/storage_service.py" — refatorado.
+- `backend/seed_user.py" — criado.
+- `.env` e `.env.example` — atualizados.
+
+### Validações que passaram
+
+- Fluxo completo validado via PowerShell: Login -> Criar Inspeção -> Presign -> Upload (PUT) -> Confirmar.
+- URLs pré-assinadas agora apontam corretamente para `localhost:9000` em ambiente de desenvolvimento.
+
+### O que ficou pendente
+
+- Ajustar as configurações do `conftest.py` para que os testes automatizados funcionem corretamente dentro do ambiente Docker (resolução de host `db`).
+
+### Próxima ação
+
+Sprint 7: IA (HuggingFace Inference API) e Geração de PDF.
+
+---
+
+## Task 23
+
+**Data:** 23/05/2026
+**Sprint:** 7 - IA (HuggingFace) + PDF (WeasyPrint)
+**Sessão:** Implementação do Serviço de IA (Task 7.1)
+
+### O que foi feito
+
+- Implementado `app/services/ai_service.py`:
+  - `classify_image`: Integração com HuggingFace Inference API (`google/vit-base-patch16-224`) via `httpx`.
+  - `_classify_local_fallback`: Mecanismo de contingência para falhas de API ou rede.
+  - `map_severity`: Lógica de mapeamento de severidade baseada em score e labels de risco (crack, damage, etc).
+  - `process_inspection_media`: Orquestração completa de download do MinIO, classificação e atualização da inspeção.
+- Integrado logs de auditoria para a ação `ai_classified`.
+- Configurado tratamento de erros resiliente para garantir que o processo de inspeção não seja interrompido por falhas na IA.
+
+### Estado dos arquivos tocados
+
+- `backend/app/services/ai_service.py` — completo.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Validação manual da lógica de fallback em ambiente com restrição de DNS.
+- Verificação da estrutura de retorno e mapeamento de severidade.
+
+### O que ficou pendente
+
+- Task 7.2: Implementação da geração de laudos em PDF via WeasyPrint.
+
+### Próxima ação
+
+Task 7.2: Desenvolver o `pdf_service.py` e os templates Jinja2 para geração de laudos técnicos.
+
+---
+
+## Task 24
+
+**Data:** 23/05/2026
+**Sprint:** 7 - IA (HuggingFace) + PDF (WeasyPrint)
+**Sessão:** Geração de Laudos e Correção do Endpoint IA (Task 7.2 & 7.3)
+
+### O que foi feito
+
+- Implementado `pdf_service.py` e template `report.html` para geração de laudos técnicos com hash SHA-256.
+- Corrigida a URL da HuggingFace Inference API para o novo domínio `router.huggingface.co`.
+- Integrada a classificação automática de IA no fluxo de confirmação de mídia via `BackgroundTasks`.
+
+### Estado dos arquivos tocados
+
+- `backend/app/services/pdf_service.py` — completo.
+- `backend/app/routers/reports.py" — completo.
+- `backend/app/services/ai_service.py" — corrigido.
+
+---
+
+## Task 25
+
+**Data:** 24/05/2026
+**Sprint:** 7 - IA (HuggingFace) + PDF (WeasyPrint)
+**Sessão:** Estabilização do Fluxo de IA e Validação (Task 7.4)
+
+### O que foi feito
+
+- Corrigida a instância da sessão de banco (`AsyncSessionLocal`) no router de mídia, resolvendo a quebra do fluxo de background.
+- Implementados headers mandatórios (`x-wait-for-model`, `Content-Type`) no `ai_service.py` para compatibilidade com o router do HuggingFace.
+- Validada a conexão com a API do HuggingFace através de teste manual com imagem real, confirmando o retorno de labels (ex: "pier", "seashore") e descartando falhas no token ou modelo.
+
+### Estado dos arquivos tocados
+
+- `backend/app/routers/media.py` — completo.
+- `backend/app/services/ai_service.py" — otimizado.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Teste manual (curl) retornou classificação válida (score > 0.6) da API do HuggingFace.
+- Fluxo de background agora completa o ciclo de atualização de thumbnail e classificação.
+
+### Próxima ação
+
+Validar fluxo de geração de PDF
+
+---
+
+## Task 26
+
+**Data:** 24/05/2026
+**Sprint:** 7 - IA (HuggingFace) + PDF (WeasyPrint)
+**Sessão:** Estabilização e Validação do Fluxo de PDF (Task 7.5)
+
+### O que foi feito
+
+- Corrigido o gerenciamento de sessões assíncronas no router de relatórios, utilizando um `wrapper` para garantir que tarefas de background tenham sua própria conexão estável com o banco.
+- Corrigido erro de nomenclatura no `pdf_service.py` (de `from_wkb` para `parse_wkb`), normalizando a leitura de coordenadas geográficas no laudo.
+- Criado o script de automação `backend/test_pdf.py` para validação end-to-end do ciclo: Login -> Inspeção -> Geração -> Download.
+- Validada a renderização do PDF com WeasyPrint e a integridade via Hash SHA-256 no corpo do documento.
+
+### Estado dos arquivos tocados
+
+- `backend/app/routers/reports.py` — Refatorado para estabilidade em background.
+- `backend/app/services/pdf_service.py` — Corrigido processamento de localização.
+- `backend/test_pdf.py` — Novo script de utilidade.
+- `PROGRESS.md` — Atualizado.
+
+### Validações que passaram
+
+- Script `test_pdf.py` completou com sucesso o download do arquivo `laudo_teste.pdf`.
+- Verificado via logs que o Hash SHA-256 é gerado e persistido corretamente.
+
+### Próxima ação
+
+Sprint 8: Cobertura de testes automatizados com Pytest.
