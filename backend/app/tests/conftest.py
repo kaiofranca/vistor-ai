@@ -2,23 +2,38 @@ import asyncio
 import sys
 from unittest.mock import MagicMock
 
-# Mock problematic libraries for Windows environment
-try:
-    import magic
-except ImportError:
-    mock_magic = MagicMock()
-    mock_magic.from_buffer.return_value = "image/jpeg"
-    sys.modules["magic"] = mock_magic
+# Mock problematic libraries for Windows environment (Pre-emptive)
+if sys.platform == "win32":
+    # Mock magic
+    try:
+        import magic
+    except ImportError:
+        mock_magic = MagicMock()
+        mock_magic.from_buffer.return_value = "image/jpeg"
+        sys.modules["magic"] = mock_magic
 
-try:
-    import weasyprint
-except (ImportError, OSError):
+    # Mock weasyprint pre-emptively to avoid native library issues
     mock_weasyprint = MagicMock()
-    # Mock HTML().write_pdf() to return bytes
     mock_html_inst = MagicMock()
     mock_html_inst.write_pdf.return_value = b"fake pdf content"
     mock_weasyprint.HTML.return_value = mock_html_inst
     sys.modules["weasyprint"] = mock_weasyprint
+else:
+    # On non-windows, still try to mock if missing
+    try:
+        import magic
+    except ImportError:
+        mock_magic = MagicMock()
+        sys.modules["magic"] = mock_magic
+    
+    try:
+        import weasyprint
+    except (ImportError, OSError):
+        mock_weasyprint = MagicMock()
+        mock_html_inst = MagicMock()
+        mock_html_inst.write_pdf.return_value = b"fake pdf content"
+        mock_weasyprint.HTML.return_value = mock_html_inst
+        sys.modules["weasyprint"] = mock_weasyprint
 
 import pytest
 import pytest_asyncio

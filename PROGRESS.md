@@ -34,7 +34,7 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | [✅] | IA (HuggingFace) → classifica imagem e mapeia severidade |
 | [✅] | POST /reports/generate → gera PDF com hash SHA-256 |
 | [✅] | pytest --cov=app → cobertura >= 70% |
-| [⬜] | git tag v0.1.0-backend existe |
+| [✅] | git tag v0.1.0-backend existe |
 | [✅] | PROGRESS.md atualizado |
 | [✅] | Nenhum TODO crítico no código |
 
@@ -1069,3 +1069,35 @@ Trabalhar nas próximas definições de versionamento, ou migrar os esforços pa
 ### Próxima ação
 
 Backend finalizado com sucesso para a Sprint 8. Iniciar planejamento para o módulo Mobile.
+
+---
+
+## Task 29
+
+**Data:** 25/05/2026
+**Sprint:** 8 - Testes + cobertura ≥ 70%
+**Sessão:** Refatoração de Componentes e Estabilização Final
+
+### O que foi feito
+
+- **Refatoração do Redis**: Componentização da lógica de conexão em `app/redis.py`, centralizando a configuração e simplificando as dependências em `app/dependencies/db.py`.
+- **Estabilização do Ambiente (Windows)**:
+  - Implementação de mock agressivo no `conftest.py` para as bibliotecas `weasyprint` e `magic`, permitindo a execução completa da suíte de testes em ambientes Windows sem dependências nativas (GTK+/libmagic).
+  - Organização e limpeza do arquivo `.env` para evitar erros de validação do Pydantic.
+- **Documentação Final**: Preenchimento do `backend/README.md` com guia rápido de configuração, execução e testes.
+
+### Estado dos arquivos tocados
+
+- `backend/app/redis.py` — Componentizado.
+- `backend/app/dependencies/db.py` — Refatorado.
+- `backend/app/tests/conftest.py` — Estabilizado para Windows.
+- `backend/README.md` — Finalizado.
+
+### Validações que passaram
+
+- Suíte de 38 testes validada localmente com 100% de sucesso.
+- Cobertura final mantida em 75%.
+
+### Próxima ação
+
+Backend concluído e estabilizado. Iniciar Sprint 1 do módulo **Mobile (Flutter)**.
