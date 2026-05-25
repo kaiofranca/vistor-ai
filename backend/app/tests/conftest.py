@@ -1,4 +1,21 @@
 import asyncio
+import sys
+from unittest.mock import MagicMock
+
+# Mock problematic libraries for Windows environment
+try:
+    import magic
+except ImportError:
+    mock_magic = MagicMock()
+    mock_magic.from_buffer.return_value = "image/jpeg"
+    sys.modules["magic"] = mock_magic
+
+try:
+    import weasyprint
+except (ImportError, OSError):
+    mock_weasyprint = MagicMock()
+    sys.modules["weasyprint"] = mock_weasyprint
+
 import pytest
 import pytest_asyncio
 from typing import AsyncGenerator

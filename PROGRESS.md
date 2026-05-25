@@ -17,7 +17,7 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 22/05/2026 |
 | 6 | Mídia — upload/download MinIO | ✅ Concluído | 23/05/2026 |
 | 7 | IA (HuggingFace) + PDF (WeasyPrint) | ✅ Concluído | 24/05/2026 |
-| 8 | Testes + cobertura ≥ 70% | ⬜ Pendente | — |
+| 8 | Testes + cobertura ≥ 70% | 🔄 Em andamento | 25/05/2026 |
 
 ## Checklist antes do Mobile
 
@@ -33,7 +33,7 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | [✅] | POST /media/presign → retorna URL de upload |
 | [✅] | IA (HuggingFace) → classifica imagem e mapeia severidade |
 | [✅] | POST /reports/generate → gera PDF com hash SHA-256 |
-| [⬜] | pytest --cov=app → cobertura >= 70% |
+| [✅] | pytest --cov=app → cobertura >= 70% |
 | [⬜] | git tag v0.1.0-backend existe |
 | [✅] | PROGRESS.md atualizado |
 | [✅] | Nenhum TODO crítico no código |
@@ -993,3 +993,38 @@ Validar fluxo de geração de PDF
 ### Próxima ação
 
 Sprint 8: Cobertura de testes automatizados com Pytest.
+
+---
+
+## Task 27
+
+**Data:** 25/05/2026
+**Sprint:** 8 - Testes + cobertura ≥ 70%
+**Sessão:** Aumento da cobertura de testes para 78% (Task 8.1)
+
+### O que foi feito
+
+- Aumento da cobertura de testes gerais de 64% para 78%, atingindo e superando a meta de 70%.
+- Realizado o mocking de bibliotecas críticas (`libmagic` e `GTK+`) no arquivo `conftest.py` para compatibilidade com ambiente Windows e contorno da dependência do `weasyprint`.
+- Criado o arquivo `app/tests/test_coverage_boost.py` com foco em arquivos com baixa cobertura.
+- Criados testes unitários e mocks para:
+  - `ai_service.py` (de 0% para 52%): mapeamento de severidade, classificação e fallbacks.
+  - `pdf_service.py` (de 24% para 80%): laudo (idempotência), hash e erros.
+  - `geo_service.py` (de 28% para 95%): exportação de dados para GeoJSON e CSV.
+  - `storage_service.py` (de 23% para 59%): thumbnails e erros no S3/MinIO.
+- Cobertura de edge cases em routers e services (IDOR, erro 404, etc).
+
+### Estado dos arquivos tocados
+
+- `backend/app/tests/conftest.py` — atualizado com os novos mocks.
+- `backend/app/tests/test_coverage_boost.py` — criado.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Execução local via *pytest* alcançou os 78% exigidos.
+- 37 testes passaram sem erros.
+
+### Próxima ação
+
+Finalizar a Sprint 8 com o fluxo e2e da API garantido
