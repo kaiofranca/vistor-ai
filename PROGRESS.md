@@ -17,7 +17,7 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 22/05/2026 |
 | 6 | Mídia — upload/download MinIO | ✅ Concluído | 23/05/2026 |
 | 7 | IA (HuggingFace) + PDF (WeasyPrint) | ✅ Concluído | 24/05/2026 |
-| 8 | Testes + cobertura ≥ 70% | 🔄 Em andamento | 25/05/2026 |
+| 8 | Testes + cobertura ≥ 70% | ✅ Concluído | 25/05/2026 |
 
 ## Checklist antes do Mobile
 
@@ -1027,4 +1027,45 @@ Sprint 8: Cobertura de testes automatizados com Pytest.
 
 ### Próxima ação
 
-Finalizar a Sprint 8 com o fluxo e2e da API garantido
+Trabalhar nas próximas definições de versionamento, ou migrar os esforços para o mobile.
+
+---
+
+## Task 28
+
+**Data:** 25/05/2026
+**Sprint:** 8 - Testes + cobertura ≥ 70%
+**Sessão:** Implementação de Teste E2E e Correções de Infraestrutura
+
+### O que foi feito
+
+- Implementação do teste de fluxo completo em `app/tests/test_e2e.py`, cobrindo:
+  1. Criação e Login de Inspetor.
+  2. Criação de Inspeção (Coordenadas SP).
+  3. Fluxo de mídia (Presigned URL e Confirmação).
+  4. IA (Simulação de label e score).
+  5. Geração e verificação de integridade de Laudo (Hash SHA-256).
+  6. Busca geoespacial (/geo/nearby).
+  7. Fluxo de Gestor (Login, Atribuição e Mudança de Status).
+- **Correção no `audit_service.py`**: Adicionada função `_json_serializable` para tratar UUIDs e Enums antes de salvar no JSONB do Postgres, resolvendo erros de persistência.
+- **Melhoria no `pdf_service.py`**: Uso de caminhos absolutos para templates Jinja2, garantindo que o sistema encontre os arquivos em qualquer ambiente de execução.
+- **Refatoração do `conftest.py`**:
+  - Mock de `AsyncSessionLocal` para garantir que Background Tasks usem a mesma sessão de teste.
+  - Mock de S3 Client para permitir testes de upload/download sem MinIO.
+  - Mock aprimorado do `weasyprint` para retornar bytes válidos para hash.
+
+### Estado dos arquivos tocados
+
+- `backend/app/tests/test_e2e.py` — Criado.
+- `backend/app/services/audit_service.py` — Corrigido.
+- `backend/app/services/pdf_service.py` — Estabilizado.
+- `backend/app/tests/conftest.py` — Atualizado.
+
+### Validações que passaram
+
+- Suíte completa com 38 testes passando com sucesso.
+- Cobertura consolidada em 75%.
+
+### Próxima ação
+
+Backend finalizado com sucesso para a Sprint 8. Iniciar planejamento para o módulo Mobile.

@@ -14,6 +14,10 @@ try:
     import weasyprint
 except (ImportError, OSError):
     mock_weasyprint = MagicMock()
+    # Mock HTML().write_pdf() to return bytes
+    mock_html_inst = MagicMock()
+    mock_html_inst.write_pdf.return_value = b"fake pdf content"
+    mock_weasyprint.HTML.return_value = mock_html_inst
     sys.modules["weasyprint"] = mock_weasyprint
 
 import pytest
@@ -96,8 +100,27 @@ async def client(db_session: AsyncSession, redis_client: FakeRedis) -> AsyncGene
     app.dependency_overrides[get_db] = lambda: db_session
     app.dependency_overrides[get_redis] = lambda: redis_client
     
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-        yield ac
+    # Mock AsyncSessionLocal for background tasks in tests
+    from unittest.mock import patch, AsyncMock
+    from contextlib import asynccontextmanager
+    
+    @asynccontextmanager
+    async def mock_session_local():
+        yield db_session
+        
+    @asynccontextmanager
+    async def mock_s3_context():
+        mock_client = AsyncMock()
+        mock_body = AsyncMock()
+        mock_body.read.return_value = b"fake image content"
+        mock_client.get_object.return_value = {"Body": mock_body}
+        yield mock_client
+
+    # We patch it where it is imported inside the functions
+    with patch("app.database.AsyncSessionLocal", side_effect=mock_session_local), \
+         patch("app.services.storage_service.get_s3_client_context", side_effect=mock_s3_context):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+            yield ac
     
     app.dependency_overrides.clear()
 

@@ -17,8 +17,13 @@ from app.schemas.inspection import LocationPoint
 
 logger = logging.getLogger(__name__)
 
+import os
+
+# Caminho absoluto para a pasta de templates
+TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+
 env = Environment(
-    loader=FileSystemLoader("app/templates"),
+    loader=FileSystemLoader(TEMPLATE_DIR),
     autoescape=select_autoescape(enabled_extensions=('html', 'xml'), default_for_string=True)
 )
 
@@ -144,8 +149,7 @@ async def verify_report_hash(report_id: uuid.UUID, db: AsyncSession) -> bool:
         # Baixa do MinIO
         async with storage_service.get_s3_client_context() as client:
             response = await client.get_object(Bucket="reports", Key=report.minio_key)
-            async with response['Body'] as stream:
-                pdf_bytes = await stream.read()
+            pdf_bytes = await response['Body'].read()
 
         # Recalcula hash
         calculated_hash = hashlib.sha256(pdf_bytes).hexdigest()
