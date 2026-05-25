@@ -1,4 +1,40 @@
 import asyncio
+import sys
+from unittest.mock import MagicMock
+
+# Mock problematic libraries for Windows environment (Pre-emptive)
+if sys.platform == "win32":
+    # Mock magic
+    try:
+        import magic
+    except ImportError:
+        mock_magic = MagicMock()
+        mock_magic.from_buffer.return_value = "image/jpeg"
+        sys.modules["magic"] = mock_magic
+
+    # Mock weasyprint pre-emptively to avoid native library issues
+    mock_weasyprint = MagicMock()
+    mock_html_inst = MagicMock()
+    mock_html_inst.write_pdf.return_value = b"fake pdf content"
+    mock_weasyprint.HTML.return_value = mock_html_inst
+    sys.modules["weasyprint"] = mock_weasyprint
+else:
+    # On non-windows, still try to mock if missing
+    try:
+        import magic
+    except ImportError:
+        mock_magic = MagicMock()
+        sys.modules["magic"] = mock_magic
+    
+    try:
+        import weasyprint
+    except (ImportError, OSError):
+        mock_weasyprint = MagicMock()
+        mock_html_inst = MagicMock()
+        mock_html_inst.write_pdf.return_value = b"fake pdf content"
+        mock_weasyprint.HTML.return_value = mock_html_inst
+        sys.modules["weasyprint"] = mock_weasyprint
+
 import pytest
 import pytest_asyncio
 from typing import AsyncGenerator
@@ -79,8 +115,27 @@ async def client(db_session: AsyncSession, redis_client: FakeRedis) -> AsyncGene
     app.dependency_overrides[get_db] = lambda: db_session
     app.dependency_overrides[get_redis] = lambda: redis_client
     
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-        yield ac
+    # Mock AsyncSessionLocal for background tasks in tests
+    from unittest.mock import patch, AsyncMock
+    from contextlib import asynccontextmanager
+    
+    @asynccontextmanager
+    async def mock_session_local():
+        yield db_session
+        
+    @asynccontextmanager
+    async def mock_s3_context():
+        mock_client = AsyncMock()
+        mock_body = AsyncMock()
+        mock_body.read.return_value = b"fake image content"
+        mock_client.get_object.return_value = {"Body": mock_body}
+        yield mock_client
+
+    # We patch it where it is imported inside the functions
+    with patch("app.database.AsyncSessionLocal", side_effect=mock_session_local), \
+         patch("app.services.storage_service.get_s3_client_context", side_effect=mock_s3_context):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+            yield ac
     
     app.dependency_overrides.clear()
 

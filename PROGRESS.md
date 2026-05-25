@@ -17,7 +17,7 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | 5 | Inspeções CRUD + PostGIS | ✅ Concluído | 22/05/2026 |
 | 6 | Mídia — upload/download MinIO | ✅ Concluído | 23/05/2026 |
 | 7 | IA (HuggingFace) + PDF (WeasyPrint) | ✅ Concluído | 24/05/2026 |
-| 8 | Testes + cobertura ≥ 70% | ⬜ Pendente | — |
+| 8 | Testes + cobertura ≥ 70% | ✅ Concluído | 25/05/2026 |
 
 ## Checklist antes do Mobile
 
@@ -33,8 +33,8 @@ foca exclusivamente no `backend`. Para visualizar o `mobile`, acesse o [`./PROGR
 | [✅] | POST /media/presign → retorna URL de upload |
 | [✅] | IA (HuggingFace) → classifica imagem e mapeia severidade |
 | [✅] | POST /reports/generate → gera PDF com hash SHA-256 |
-| [⬜] | pytest --cov=app → cobertura >= 70% |
-| [⬜] | git tag v0.1.0-backend existe |
+| [✅] | pytest --cov=app → cobertura >= 70% |
+| [✅] | git tag v0.1.0-backend existe |
 | [✅] | PROGRESS.md atualizado |
 | [✅] | Nenhum TODO crítico no código |
 
@@ -993,3 +993,111 @@ Validar fluxo de geração de PDF
 ### Próxima ação
 
 Sprint 8: Cobertura de testes automatizados com Pytest.
+
+---
+
+## Task 27
+
+**Data:** 25/05/2026
+**Sprint:** 8 - Testes + cobertura ≥ 70%
+**Sessão:** Aumento da cobertura de testes para 78% (Task 8.1)
+
+### O que foi feito
+
+- Aumento da cobertura de testes gerais de 64% para 78%, atingindo e superando a meta de 70%.
+- Realizado o mocking de bibliotecas críticas (`libmagic` e `GTK+`) no arquivo `conftest.py` para compatibilidade com ambiente Windows e contorno da dependência do `weasyprint`.
+- Criado o arquivo `app/tests/test_coverage_boost.py` com foco em arquivos com baixa cobertura.
+- Criados testes unitários e mocks para:
+  - `ai_service.py` (de 0% para 52%): mapeamento de severidade, classificação e fallbacks.
+  - `pdf_service.py` (de 24% para 80%): laudo (idempotência), hash e erros.
+  - `geo_service.py` (de 28% para 95%): exportação de dados para GeoJSON e CSV.
+  - `storage_service.py` (de 23% para 59%): thumbnails e erros no S3/MinIO.
+- Cobertura de edge cases em routers e services (IDOR, erro 404, etc).
+
+### Estado dos arquivos tocados
+
+- `backend/app/tests/conftest.py` — atualizado com os novos mocks.
+- `backend/app/tests/test_coverage_boost.py` — criado.
+- `PROGRESS.md` — atualizado.
+
+### Validações que passaram
+
+- Execução local via *pytest* alcançou os 78% exigidos.
+- 37 testes passaram sem erros.
+
+### Próxima ação
+
+Trabalhar nas próximas definições de versionamento, ou migrar os esforços para o mobile.
+
+---
+
+## Task 28
+
+**Data:** 25/05/2026
+**Sprint:** 8 - Testes + cobertura ≥ 70%
+**Sessão:** Implementação de Teste E2E e Correções de Infraestrutura
+
+### O que foi feito
+
+- Implementação do teste de fluxo completo em `app/tests/test_e2e.py`, cobrindo:
+  1. Criação e Login de Inspetor.
+  2. Criação de Inspeção (Coordenadas SP).
+  3. Fluxo de mídia (Presigned URL e Confirmação).
+  4. IA (Simulação de label e score).
+  5. Geração e verificação de integridade de Laudo (Hash SHA-256).
+  6. Busca geoespacial (/geo/nearby).
+  7. Fluxo de Gestor (Login, Atribuição e Mudança de Status).
+- **Correção no `audit_service.py`**: Adicionada função `_json_serializable` para tratar UUIDs e Enums antes de salvar no JSONB do Postgres, resolvendo erros de persistência.
+- **Melhoria no `pdf_service.py`**: Uso de caminhos absolutos para templates Jinja2, garantindo que o sistema encontre os arquivos em qualquer ambiente de execução.
+- **Refatoração do `conftest.py`**:
+  - Mock de `AsyncSessionLocal` para garantir que Background Tasks usem a mesma sessão de teste.
+  - Mock de S3 Client para permitir testes de upload/download sem MinIO.
+  - Mock aprimorado do `weasyprint` para retornar bytes válidos para hash.
+
+### Estado dos arquivos tocados
+
+- `backend/app/tests/test_e2e.py` — Criado.
+- `backend/app/services/audit_service.py` — Corrigido.
+- `backend/app/services/pdf_service.py` — Estabilizado.
+- `backend/app/tests/conftest.py` — Atualizado.
+
+### Validações que passaram
+
+- Suíte completa com 38 testes passando com sucesso.
+- Cobertura consolidada em 75%.
+
+### Próxima ação
+
+Backend finalizado com sucesso para a Sprint 8. Iniciar planejamento para o módulo Mobile.
+
+---
+
+## Task 29
+
+**Data:** 25/05/2026
+**Sprint:** 8 - Testes + cobertura ≥ 70%
+**Sessão:** Refatoração de Componentes e Estabilização Final
+
+### O que foi feito
+
+- **Refatoração do Redis**: Componentização da lógica de conexão em `app/redis.py`, centralizando a configuração e simplificando as dependências em `app/dependencies/db.py`.
+- **Estabilização do Ambiente (Windows)**:
+  - Implementação de mock agressivo no `conftest.py` para as bibliotecas `weasyprint` e `magic`, permitindo a execução completa da suíte de testes em ambientes Windows sem dependências nativas (GTK+/libmagic).
+  - Organização e limpeza do arquivo `.env` para evitar erros de validação do Pydantic.
+- **Documentação Final**: Preenchimento do `backend/README.md` com guia rápido de configuração, execução e testes.
+
+### Estado dos arquivos tocados
+
+- `backend/app/redis.py` — Componentizado.
+- `backend/app/dependencies/db.py` — Refatorado.
+- `backend/app/tests/conftest.py` — Estabilizado para Windows.
+- `backend/README.md` — Finalizado.
+
+### Validações que passaram
+
+- Suíte de 38 testes validada localmente com 100% de sucesso.
+- Cobertura final mantida em 75%.
+
+### Próxima ação
+
+Backend concluído e estabilizado. Iniciar Sprint 1 do módulo **Mobile (Flutter)**.

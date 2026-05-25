@@ -3,6 +3,21 @@ from typing import Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.audit_log import AuditLog
 
+import json
+from enum import Enum
+
+def _json_serializable(obj: Any) -> Any:
+    """Converte objetos não serializáveis em formatos compatíveis com JSON."""
+    if isinstance(obj, uuid.UUID):
+        return str(obj)
+    if isinstance(obj, Enum):
+        return obj.value
+    if isinstance(obj, dict):
+        return {k: _json_serializable(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_serializable(i) for i in obj]
+    return obj
+
 async def log_action(
     db: AsyncSession,
     user_id: str,
@@ -22,8 +37,8 @@ async def log_action(
         entity=entity,
         entity_id=e_id,
         action=action,
-        old_value=old_value,
-        new_value=new_value,
+        old_value=_json_serializable(old_value),
+        new_value=_json_serializable(new_value),
         ip_address=ip
     )
     db.add(log_entry)

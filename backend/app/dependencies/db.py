@@ -1,8 +1,8 @@
 from typing import AsyncGenerator
-from redis.asyncio import Redis, from_url
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import AsyncSessionLocal
-from app.config import settings
+from app.redis import get_redis_client
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
@@ -12,7 +12,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 async def get_redis() -> AsyncGenerator[Redis, None]:
-    redis = from_url(settings.REDIS_URL)
+    redis = get_redis_client()
     try:
         yield redis
     finally:
