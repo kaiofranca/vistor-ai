@@ -1,0 +1,30 @@
+import 'package:drift/drift.dart';
+import 'package:vistor_ai_mobile/core/local/database.dart';
+
+part 'inspection_dao.g.dart';
+
+@DriftAccessor(tables: [LocalInspections])
+class InspectionDao extends DatabaseAccessor<AppDatabase> with _$InspectionDaoMixin {
+  InspectionDao(AppDatabase db) : super(db);
+
+  Future<int> insertLocalInspection(LocalInspectionsCompanion companion) {
+    return into(localInspections).insert(companion);
+  }
+
+  Future<List<LocalInspection>> getPendingInspections() {
+    return (select(localInspections)..where((t) => t.isSynced.equals(false))).get();
+  }
+
+  Future<void> markAsSynced(int localId, String remoteId) {
+    return (update(localInspections)..where((t) => t.id.equals(localId))).write(
+      LocalInspectionsCompanion(
+        remoteId: Value(remoteId),
+        isSynced: const Value(true),
+      ),
+    );
+  }
+
+  Future<List<LocalInspection>> getAllLocal() {
+    return select(localInspections).get();
+  }
+}
