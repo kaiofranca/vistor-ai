@@ -9,7 +9,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 
 | Sprint | Descrição | Status | Concluída em |
 |---|---|---|---|
-| 9 | Setup Mobile (Deps, Theme, App, Router, API) | ✅ Concluído | 01/06/2026 |
+| 9 | Setup Mobile (Deps, Theme, App, Router, API, Local) | ✅ Concluído | 01/06/2026 |
 | 10 | Autenticação + Core Services | ⬜ Pendente | — |
 | 11 | Home + Lista de Inspeções | ⬜ Pendente | — |
 | 12 | Fluxo de Criação de Inspeção | ⬜ Pendente | — |
@@ -57,7 +57,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - Implementação do `lib/app/theme.dart` como fonte da verdade de design (cores, estilos, tokens).
 - Configuração do `lib/app/app.dart` com `MaterialApp.router`, suporte a Dark Mode e localização (pt-BR).
 - Implementação do `lib/main.dart` com inicialização do Hive e stub do Service Locator (GetIt).
-- Adição da dependência `flutter_localizations` ao `pubspec.yaml`.
+- Adição da dependência `flutter_localizations` al `pubspec.yaml`.
 
 ### Estado dos arquivos tocados
 
@@ -127,6 +127,33 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - Geração de código `build_runner` concluída com sucesso (`env.g.dart`).
 - Teste de instanciação do `ApiClient` validado.
 
+---
+
+## Task 05
+
+**Data:** 01/06/2026
+
+**Sprint:** 9 - Setup Mobile
+**Sessão:** Local DB (Drift) e GPS Service
+
+### O que foi feito
+
+- Implementação do `GpsService` com captura de posição, validação de precisão (RN-08) e stream contínuo.
+- Configuração do banco de dados local com `Drift` (`AppDatabase`) e tabela `local_inspections` para suporte offline.
+- Implementação do `InspectionDao` para persistência local de inspeções pendentes de sincronização.
+- Definição de exceções customizadas para falhas de GPS.
+
+### Estado dos arquivos tocados
+
+- `mobile/lib/core/services/gps_service.dart` — completo.
+- `mobile/lib/core/local/database.dart` — completo.
+- `mobile/lib/core/local/inspection_dao.dart` — completo.
+
+### Validações que passaram
+
+- `flutter analyze` sem erros.
+- Geração de código `build_runner` (`database.g.dart`) concluída com sucesso.
+
 ### Próxima ação
 
-Concluir a Sprint 9 (Tasks 5 e 6) ou iniciar Sprint 10 (Autenticação).
+Concluir a Sprint 9 (Task 6) ou iniciar a Sprint 10 (Autenticação).
