@@ -9,7 +9,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 
 | Sprint | Descrição | Status | Concluída em |
 |---|---|---|---|
-| 9 | Setup Mobile (Deps, Theme, App, Router) | ✅ Concluído | 01/06/2026 |
+| 9 | Setup Mobile (Deps, Theme, App, Router, API) | ✅ Concluído | 01/06/2026 |
 | 10 | Autenticação + Core Services | ⬜ Pendente | — |
 | 11 | Home + Lista de Inspeções | ⬜ Pendente | — |
 | 12 | Fluxo de Criação de Inspeção | ⬜ Pendente | — |
@@ -95,6 +95,38 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 
 - `flutter analyze` sem erros. Navegação entre as 4 abas funcionais via placeholders.
 
+---
+
+## Task 04
+
+**Data:** 01/06/2026
+
+**Sprint:** 9 - Setup Mobile
+**Sessão:** Comunicação Core API (Dio, JWT, Storage)
+
+### O que foi feito
+
+- Implementação do `ApiClient` utilizando a biblioteca `Dio` para centralizar as requisições HTTP.
+- Configuração de interceptores para injeção automática de tokens JWT no header `Authorization`.
+- Implementação de lógica de **Refresh Token** automatizada para renovação de sessões expiradas.
+- Criação do `TokenStorage` utilizando `FlutterSecureStorage` para armazenamento criptografado de tokens.
+- Mapeamento completo dos endpoints do backend em `AppEndpoints`.
+- Configuração de variáveis de ambiente (`API_BASE_URL`) via `envied`.
+
+### Estado dos arquivos tocados
+
+- `mobile/lib/core/api/api_client.dart` — completo.
+- `mobile/lib/core/api/token_storage.dart` — completo.
+- `mobile/lib/core/api/endpoints.dart` — completo.
+- `mobile/lib/core/utils/env.dart` — completo.
+- `mobile/pubspec.yaml` — atualizado com pins para compatibilidade de build.
+
+### Validações que passaram
+
+- `flutter analyze` sem erros.
+- Geração de código `build_runner` concluída com sucesso (`env.g.dart`).
+- Teste de instanciação do `ApiClient` validado.
+
 ### Próxima ação
 
-Sprint 10: Iniciar implementação da autenticação (AuthCubit, Repository) e conexão com o backend.
+Concluir a Sprint 9 (Tasks 5 e 6) ou iniciar Sprint 10 (Autenticação).
