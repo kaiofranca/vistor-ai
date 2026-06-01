@@ -35,6 +35,8 @@ dependencies:
   dotted_border: ^2.1.0
   get_it: ^7.6.7
   envied: ^0.5.4
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
