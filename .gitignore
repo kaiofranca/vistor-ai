@@ -32,23 +32,49 @@ minio_data/
 redis_data/
 docker-data/
 
-# Flutter
+# Flutter / Mobile
 .dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
 build/
+coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
 *.g.dart
 *.freezed.dart
 *.mocks.dart
-ios/Pods/
-android/.gradle/
-android/app/build/
-.flutter-plugins
-.flutter-plugins-dependencies
+
+# Mobile Android
+mobile/android/.gradle/
+mobile/android/.cxx/
+mobile/android/captures/
+mobile/android/gradlew
+mobile/android/gradlew.bat
+mobile/android/local.properties
+mobile/android/GeneratedPluginRegistrant.java
+mobile/android/key.properties
+mobile/android/gradle-wrapper.jar
+mobile/android/**/*.keystore
+mobile/android/**/*.jks
+mobile/android/app/debug
+mobile/android/app/profile
+mobile/android/app/release
+mobile/android/app/build/
+
+# Mobile iOS
+mobile/ios/Pods/
+mobile/ios/.generated/
 
 # IDEs
 .idea/
 .vscode/
 .DS_Store
 Thumbs.db
+*.iml
+*.ipr
+*.iws
 
 # Outros
 SPRINTS.md

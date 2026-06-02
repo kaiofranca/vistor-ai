@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
+import 'package:vistor_ai_mobile/features/auth/domain/auth_state.dart';
 import 'package:vistor_ai_mobile/features/auth/presentation/login_screen.dart';
 import 'package:vistor_ai_mobile/features/auth/presentation/splash_screen.dart';
 
@@ -112,11 +113,11 @@ GoRouter buildRouter(AuthCubit authCubit) {
           return null;
         },
         unauthenticated: () {
-          if (loggingIn || isSplash) return null;
+          if (loggingIn) return null;
           return AppRoutes.login;
         },
         error: (_) {
-           if (loggingIn || isSplash) return null;
+           if (loggingIn) return null;
            return AppRoutes.login;
         },
         orElse: () => null, // Mantém no splash enquanto carrega

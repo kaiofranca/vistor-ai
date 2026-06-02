@@ -13,7 +13,7 @@ enum MediaType {
 }
 
 @freezed
-class Media with _$Media {
+abstract class Media with _$Media {
   const factory Media({
     required String id,
     @JsonKey(name: 'inspection_id') required String inspectionId,

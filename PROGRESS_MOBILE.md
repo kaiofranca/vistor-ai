@@ -10,7 +10,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 | Sprint | Descrição | Status | Concluída em |
 |---|---|---|---|
 | 9 | Setup Mobile (Deps, Theme, App, Router, API, Local, Shared) | ✅ Concluído | 01/06/2026 |
-| 10 | Autenticação + Core Services | ✅ Concluído | 02/06/2026 |
+| 10 | Autenticação + Core Services | ⏳ Em andamento | — |
 | 11 | Home + Lista de Inspeções | ⬜ Pendente | — |
 | 12 | Fluxo de Criação de Inspeção | ⬜ Pendente | — |
 | 13 | Mapa + Heatmap | ⬜ Pendente | — |
@@ -300,21 +300,25 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - Ajuste de dependências no `pubspec.yaml`:
   - Adição explícita de `path` e `path_provider`.
 - Criação dos diretórios de assets (`assets/images/`, `assets/fonts/`) para evitar avisos de build.
+- **Consolidação de arquivos `.gitignore` na raiz do projeto, removendo redundâncias em `mobile/`.**
+- **Correção de bug crítico no roteamento (`router.dart`) que impedia a saída da Splash Screen para usuários não autenticados.**
 - Validação total do projeto com `flutter analyze` retornando zero erros/avisos.
 
 ### Estado dos arquivos tocados
 
-- `mobile/lib/app/router.dart` — limpo.
+- `mobile/lib/app/router.dart` — corrigido e limpo.
 - `mobile/lib/core/local/inspection_dao.dart` — refatorado.
 - `mobile/lib/features/auth/domain/auth_cubit.dart` — otimizado.
 - `mobile/lib/features/auth/presentation/splash_screen.dart` — atualizado.
 - `mobile/pubspec.yaml` — dependências corrigidas.
 - `mobile/assets/` — estrutura criada.
+- `.gitignore` — consolidado na raiz.
 
 ### Validações que passaram
 
 - `flutter analyze` — No issues found.
 - `flutter test test/shared/models_test.dart` — Passou.
+- **Teste manual: App agora redireciona corretamente da Splash para o Login.**
 
 
 

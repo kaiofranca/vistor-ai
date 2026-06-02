@@ -4,7 +4,7 @@ part 'report.freezed.dart';
 part 'report.g.dart';
 
 @freezed
-class Report with _$Report {
+abstract class Report with _$Report {
   const factory Report({
     required String id,
     @JsonKey(name: 'inspection_id') required String inspectionId,

@@ -28,7 +28,7 @@ enum InspectionStatus {
 }
 
 @freezed
-class Inspection with _$Inspection {
+abstract class Inspection with _$Inspection {
   const factory Inspection({
     required String id,
     @JsonKey(name: 'inspector_id') required String inspectorId,
