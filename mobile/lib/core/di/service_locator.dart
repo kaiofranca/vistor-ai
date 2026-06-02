@@ -1,12 +1,21 @@
 import 'package:get_it/get_it.dart';
 import 'package:vistor_ai_mobile/core/api/api_client.dart';
 import 'package:vistor_ai_mobile/core/api/token_storage.dart';
+import 'package:vistor_ai_mobile/core/local/database.dart';
+import 'package:vistor_ai_mobile/core/local/inspection_dao.dart';
 import 'package:vistor_ai_mobile/features/auth/data/auth_repository.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
+import 'package:vistor_ai_mobile/features/inspection/data/inspection_repository.dart';
+import 'package:vistor_ai_mobile/features/inspection/domain/inspection_cubit.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> setupLocator() async {
+  // Database
+  final database = AppDatabase();
+  getIt.registerSingleton<AppDatabase>(database);
+  getIt.registerSingleton<InspectionDao>(database.inspectionDao);
+
   // Core
   final tokenStorage = TokenStorage();
   getIt.registerSingleton<TokenStorage>(tokenStorage);
@@ -22,11 +31,24 @@ Future<void> setupLocator() async {
     ),
   );
 
+  getIt.registerLazySingleton<InspectionRepository>(
+    () => InspectionRepository(
+      apiClient: getIt<ApiClient>(),
+      inspectionDao: getIt<InspectionDao>(),
+    ),
+  );
+
   // Cubits
   getIt.registerFactory<AuthCubit>(
     () => AuthCubit(
       authRepository: getIt<AuthRepository>(),
       tokenStorage: getIt<TokenStorage>(),
+    ),
+  );
+
+  getIt.registerFactory<InspectionCubit>(
+    () => InspectionCubit(
+      repository: getIt<InspectionRepository>(),
     ),
   );
 }

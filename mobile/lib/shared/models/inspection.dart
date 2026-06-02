@@ -51,3 +51,16 @@ abstract class Inspection with _$Inspection {
 
   factory Inspection.fromJson(Map<String, dynamic> json) => _$InspectionFromJson(json);
 }
+
+@freezed
+abstract class InspectionCreate with _$InspectionCreate {
+  const factory InspectionCreate({
+    required String category,
+    String? description,
+    required double lat,
+    required double lon,
+    @JsonKey(name: 'gps_accuracy') double? gpsAccuracy,
+  }) = _InspectionCreate;
+
+  factory InspectionCreate.fromJson(Map<String, dynamic> json) => _$InspectionCreateFromJson(json);
+}

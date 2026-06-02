@@ -320,5 +320,43 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `flutter test test/shared/models_test.dart` — Passou.
 - **Teste manual: App agora redireciona corretamente da Splash para o Login.**
 
+---
+
+## Task 10
+
+**Data:** 02/06/2026
+
+**Sprint:** 10 - Autenticação + Core Services
+**Sessão:** Home e Lista de Inspeções (8.2)
+
+### O que foi feito
+
+- Implementação do `InspectionRepository` com suporte a paginação cursor-based e modo offline resiliente.
+- Criação do `InspectionCubit` e gerenciamento de estados (initial, loading, loaded, empty, error) via `Freezed`.
+- Desenvolvimento da `InspectionListScreen` (Tela 8.2) com busca local, contadores dinâmicos e animações de entrada.
+- Criação dos componentes `InspectionCard` (sem border-left) e `SeverityBadge` (fundo sólido) seguindo o rigor do design.
+- Integração global do `OfflineBanner` no `AppScaffold` e `SyncIndicator` na AppBar.
+- Configuração do `BlocProvider` para `InspectionCubit` no roteamento via `GoRouter`.
+- Adição da dependência `intl` para formatação de datas localizada (pt_BR).
+
+### Estado dos arquivos tocados
+
+- `mobile/lib/features/inspection/data/inspection_repository.dart` — completo.
+- `mobile/lib/features/inspection/domain/inspection_cubit.dart` — completo.
+- `mobile/lib/features/inspection/domain/inspection_state.dart` — completo.
+- `mobile/lib/features/inspection/presentation/inspection_list_screen.dart` — completo.
+- `mobile/lib/features/inspection/presentation/widgets/inspection_card.dart` — completo.
+- `mobile/lib/features/inspection/presentation/widgets/severity_badge.dart` — completo.
+- `mobile/lib/app/router.dart` — atualizado com provedores e banners.
+- `mobile/pubspec.yaml` — dependência `intl` adicionada.
+
+### Validações que passaram
+
+- `flutter analyze` — No issues found.
+- `dart run build_runner build` — Geração de arquivos `.freezed.dart` e `.g.dart` concluída.
+- Testes manuais de navegação: Login -> Home funciona com redirecionamento correto.
+- Estados de UI validados: Loading, Lista Vazia (EmptyState) e Lista com dados.
+
+
 
 
