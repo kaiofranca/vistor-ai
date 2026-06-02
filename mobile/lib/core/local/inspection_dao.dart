@@ -5,7 +5,7 @@ part 'inspection_dao.g.dart';
 
 @DriftAccessor(tables: [LocalInspections])
 class InspectionDao extends DatabaseAccessor<AppDatabase> with _$InspectionDaoMixin {
-  InspectionDao(AppDatabase db) : super(db);
+  InspectionDao(super.db);
 
   Future<int> insertLocalInspection(LocalInspectionsCompanion companion) {
     return into(localInspections).insert(companion);

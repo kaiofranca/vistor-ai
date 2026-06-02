@@ -281,4 +281,40 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `flutter analyze lib/shared/models/` — No issues found.
 - `flutter test test/shared/models_test.dart` — All tests passed!
 
+---
+
+## Task 09
+
+**Data:** 02/06/2026
+
+**Sprint:** 10 - Autenticação + Core Services
+**Sessão:** Refatoração e Limpeza de Infraestrutura
+
+### O que foi feito
+
+- Remoção de imports não utilizados em `lib/app/router.dart`.
+- Correção de avisos de análise estática:
+  - Uso de `super parameters` em `InspectionDao`.
+  - Adição de `const` em estados do `AuthCubit`.
+  - Substituição do método depreciado `withOpacity` por `withValues` na `SplashScreen`.
+- Ajuste de dependências no `pubspec.yaml`:
+  - Adição explícita de `path` e `path_provider`.
+- Criação dos diretórios de assets (`assets/images/`, `assets/fonts/`) para evitar avisos de build.
+- Validação total do projeto com `flutter analyze` retornando zero erros/avisos.
+
+### Estado dos arquivos tocados
+
+- `mobile/lib/app/router.dart` — limpo.
+- `mobile/lib/core/local/inspection_dao.dart` — refatorado.
+- `mobile/lib/features/auth/domain/auth_cubit.dart` — otimizado.
+- `mobile/lib/features/auth/presentation/splash_screen.dart` — atualizado.
+- `mobile/pubspec.yaml` — dependências corrigidas.
+- `mobile/assets/` — estrutura criada.
+
+### Validações que passaram
+
+- `flutter analyze` — No issues found.
+- `flutter test test/shared/models_test.dart` — Passou.
+
+
 

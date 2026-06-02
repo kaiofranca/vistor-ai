@@ -49,7 +49,7 @@ class AuthCubit extends Cubit<AuthState> {
     } on AuthException catch (e) {
       emit(AuthState.error(e.message));
     } catch (e) {
-      emit(AuthState.error('Ocorreu um erro inesperado.'));
+      emit(const AuthState.error('Ocorreu um erro inesperado.'));
     }
   }
 
