@@ -357,6 +357,70 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - Testes manuais de navegação: Login -> Home funciona com redirecionamento correto.
 - Estados de UI validados: Loading, Lista Vazia (EmptyState) e Lista com dados.
 
+---
+
+## Task 11
+
+**Data:** 03/06/2026
+
+**Sprint:** 10 - Autenticação + Core Services
+**Sessão:** Cadastro de Novas Contas (Sign-up)
+
+### O que foi feito
+
+- Backend: Adição do endpoint `POST /api/auth/register` para permitir o cadastro público de inspetores.
+- Mobile: Implementação completa do fluxo de cadastro:
+  - Adição do método `signUp` no `AuthRepository` e `AuthCubit` com suporte a auto-login pós-cadastro.
+  - Criação da `RegisterScreen` e `RegisterForm` seguindo os padrões visuais do sistema.
+  - Atualização do `GoRouter` para suportar a nova rota `/register` com os devidos redirecionamentos.
+  - Inclusão de link para cadastro na `LoginScreen`.
+
+### Estado dos arquivos tocados
+
+- `backend/app/routers/auth.py` — endpoint de registro adicionado.
+- `mobile/lib/core/api/endpoints.dart` — AppEndpoints.register adicionado.
+- `mobile/lib/features/auth/data/auth_repository.dart` — método signUp adicionado.
+- `mobile/lib/features/auth/domain/auth_cubit.dart` — método signUp adicionado.
+- `mobile/lib/app/router.dart` — rotas e redirecionamentos atualizados.
+- `mobile/lib/features/auth/presentation/login_screen.dart` — link de cadastro adicionado.
+- `mobile/lib/features/auth/presentation/register_screen.dart` — criado.
+- `mobile/lib/features/auth/presentation/widgets/register_form.dart` — criado.
+
+### Validações que passaram
+
+- `flutter analyze` — No issues found.
+- Fluxo de navegação: Login -> Register -> Login (via voltar ou link) funcionando.
+- Fluxo de estado: Cadastro dispara loading e redireciona para Home após sucesso.
+
+---
+
+## Task 12
+
+**Data:** 03/06/2026
+
+**Sprint:** 10 - Autenticação + Core Services
+**Sessão:** Resolução de Conexão e Refinamento de UX
+
+### O que foi feito
+
+- Resolução de erro crítico de conexão entre o dispositivo físico e o backend via cabo USB.
+- Habilitação de `usesCleartextTraffic` no `AndroidManifest.xml` para permitir tráfego HTTP.
+- Adição de permissões de Internet e Localização no manifesto principal.
+- Correção da geração de variáveis de ambiente: limpeza e rebuild do `build_runner` para garantir que o `API_BASE_URL` reflita o `.env` atual (`localhost:8000`).
+- Reversão das mensagens de erro de conexão para um formato genérico e amigável ("Não foi possível conectar ao servidor. Verifique sua conexão.").
+
+### Estado dos arquivos tocados
+
+- `mobile/android/app/src/main/AndroidManifest.xml` — permissões e cleartext adicionados.
+- `mobile/lib/features/auth/data/auth_repository.dart` — mensagens de erro padronizadas.
+- `mobile/lib/core/utils/env.g.dart` — regenerado com a URL correta.
+
+### Validações que passaram
+
+- Fluxo de cadastro validado em dispositivo físico com sucesso via `adb reverse`.
+- Mensagens de erro testadas simulando queda de rede.
+- `flutter analyze` — No issues found.
+
 
 
 

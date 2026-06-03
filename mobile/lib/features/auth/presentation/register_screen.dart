@@ -5,12 +5,12 @@ import 'package:vistor_ai_mobile/app/router.dart';
 import 'package:vistor_ai_mobile/app/theme.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_state.dart';
-import 'package:vistor_ai_mobile/features/auth/presentation/widgets/login_form.dart';
+import 'package:vistor_ai_mobile/features/auth/presentation/widgets/register_form.dart';
 import 'package:vistor_ai_mobile/shared/widgets/app_logo.dart';
 import 'package:vistor_ai_mobile/shared/widgets/error_snackbar.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +19,11 @@ class LoginScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: BackButton(color: isDark ? Colors.white : AppColors.onBgLight),
+      ),
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           state.whenOrNull(
@@ -31,29 +36,20 @@ class LoginScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Column(
               children: [
-                const SizedBox(height: 48),
-                const AppLogo(size: 80),
+                const AppLogo(size: 60),
                 const SizedBox(height: 20),
-                RichText(
+                Text(
+                  'Crie sua conta',
                   textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : AppColors.onBgLight,
-                    ),
-                    children: const [
-                      TextSpan(text: 'Bem-vindo ao '),
-                      TextSpan(
-                        text: 'Vistor AI',
-                        style: TextStyle(color: AppColors.primary),
-                      ),
-                    ],
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : AppColors.onBgLight,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Inspeções técnicas potencializadas por IA',
+                  'Junte-se à revolução das inspeções com IA',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppColors.subtextLight,
@@ -66,10 +62,14 @@ class LoginScreen extends StatelessWidget {
                       loading: () => true,
                       orElse: () => false,
                     );
-                    return LoginForm(
+                    return RegisterForm(
                       isLoading: isLoading,
-                      onSubmit: (email, password) {
-                        context.read<AuthCubit>().login(email, password);
+                      onSubmit: ({required name, required email, required password}) {
+                        context.read<AuthCubit>().signUp(
+                          name: name,
+                          email: email,
+                          password: password,
+                        );
                       },
                     );
                   },
@@ -79,15 +79,15 @@ class LoginScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Não tem uma conta?',
+                      'Já tem uma conta?',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.subtextLight,
                       ),
                     ),
                     TextButton(
-                      onPressed: () => context.push(AppRoutes.register),
+                      onPressed: () => context.pop(),
                       child: const Text(
-                        'Cadastre-se',
+                        'Entrar',
                         style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -95,14 +95,6 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Protegido por criptografia Vistor AI',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    fontSize: 11,
-                    color: AppColors.subtextLight,
-                  ),
                 ),
                 const SizedBox(height: 24),
               ],

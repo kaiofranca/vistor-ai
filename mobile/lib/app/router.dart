@@ -7,6 +7,7 @@ import 'package:vistor_ai_mobile/core/di/service_locator.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_state.dart';
 import 'package:vistor_ai_mobile/features/auth/presentation/login_screen.dart';
+import 'package:vistor_ai_mobile/features/auth/presentation/register_screen.dart';
 import 'package:vistor_ai_mobile/features/auth/presentation/splash_screen.dart';
 import 'package:vistor_ai_mobile/features/inspection/domain/inspection_cubit.dart';
 import 'package:vistor_ai_mobile/features/inspection/presentation/inspection_list_screen.dart';
@@ -18,6 +19,7 @@ class AppRoutes {
   // Auth
   static const splash             = '/';
   static const login              = '/login';
+  static const register           = '/register';
 
   // Bottom nav (raízes das 4 abas)
   static const home               = '/inspections';
@@ -115,19 +117,20 @@ GoRouter buildRouter(AuthCubit authCubit) {
     redirect: (context, state) {
       final authState = authCubit.state;
       final bool loggingIn = state.matchedLocation == AppRoutes.login;
+      final bool registering = state.matchedLocation == AppRoutes.register;
       final bool isSplash = state.matchedLocation == AppRoutes.splash;
 
       return authState.maybeWhen(
         authenticated: (_) {
-          if (loggingIn || isSplash) return AppRoutes.home;
+          if (loggingIn || registering || isSplash) return AppRoutes.home;
           return null;
         },
         unauthenticated: () {
-          if (loggingIn) return null;
+          if (loggingIn || registering) return null;
           return AppRoutes.login;
         },
         error: (_) {
-           if (loggingIn) return null;
+           if (loggingIn || registering) return null;
            return AppRoutes.login;
         },
         orElse: () => null, // Mantém no splash enquanto carrega
@@ -142,6 +145,10 @@ GoRouter buildRouter(AuthCubit authCubit) {
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterScreen(),
       ),
 
       // Shell para as abas principais

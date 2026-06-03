@@ -53,6 +53,27 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  Future<void> signUp({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    emit(const AuthState.loading());
+    try {
+      await _authRepository.signUp(
+        name: name,
+        email: email,
+        password: password,
+      );
+      // Auto-login after registration
+      await login(email, password);
+    } on AuthException catch (e) {
+      emit(AuthState.error(e.message));
+    } catch (e) {
+      emit(const AuthState.error('Ocorreu um erro inesperado ao realizar cadastro.'));
+    }
+  }
+
   Future<void> logout() async {
     try {
       await _authRepository.logout();

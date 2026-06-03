@@ -45,7 +45,45 @@ class AuthRepository {
         throw AuthException(message);
       }
     } on DioException catch (e) {
-      final message = e.response?.data['detail'] ?? 'Erro de conexão com o servidor';
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError) {
+        throw AuthException('Não foi possível conectar ao servidor. Verifique sua conexão e se o backend está rodando.');
+      }
+      final message = e.response?.data['detail'] ?? 'Erro inesperado no servidor';
+      throw AuthException(message);
+    }
+  }
+
+  Future<void> signUp({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await _apiClient.dio.post(
+        AppEndpoints.register,
+        data: {
+          'name': name,
+          'email': email,
+          'password': password,
+          'role': 'inspector', // Default role for new signups
+        },
+      );
+
+      if (response.statusCode != 201) {
+        final message = response.data['detail'] ?? 'Erro ao realizar cadastro';
+        throw AuthException(message);
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError) {
+        throw AuthException('Não foi possível conectar ao servidor. Verifique sua conexão.');
+      }
+      final message = e.response?.data['detail'] ?? 'Erro inesperado ao realizar cadastro';
       throw AuthException(message);
     }
   }
@@ -96,4 +134,5 @@ class AuthRepository {
       throw AuthException(message);
     }
   }
+}
 }

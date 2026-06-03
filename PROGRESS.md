@@ -1101,3 +1101,26 @@ Backend finalizado com sucesso para a Sprint 8. Iniciar planejamento para o mód
 ### Próxima ação
 
 Backend concluído e estabilizado. Iniciar Sprint 1 do módulo **Mobile (Flutter)**.
+
+## Task 30
+
+**Data:** 03/06/2026
+
+**Sprint:** 9 - Integração Mobile
+**Sessão:** Endpoint de Registro Público (Sign-up)
+
+### O que foi feito
+
+- Implementação do endpoint `POST /api/auth/register` em `routers/auth.py`.
+- Integração com `auth_service.create_user` para persistência de novos inspetores.
+- Adição de log de auditoria para a ação de registro.
+- Garantia de que o endpoint é público (não exige token).
+
+### Estado dos arquivos tocados
+
+- `backend/app/routers/auth.py` — endpoint adicionado.
+
+### Validações que passaram
+
+- Análise estática do código confirmada.
+- Endpoint segue o padrão de schemas `UserCreate` e `UserOut` já estabelecidos.
