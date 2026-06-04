@@ -1,6 +1,18 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:vistor_ai_mobile/core/di/service_locator.dart';
+import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
+import 'package:vistor_ai_mobile/features/auth/domain/auth_state.dart';
+import 'package:vistor_ai_mobile/features/auth/presentation/login_screen.dart';
+import 'package:vistor_ai_mobile/features/auth/presentation/register_screen.dart';
+import 'package:vistor_ai_mobile/features/auth/presentation/splash_screen.dart';
+import 'package:vistor_ai_mobile/features/inspection/domain/inspection_cubit.dart';
+import 'package:vistor_ai_mobile/features/inspection/presentation/inspection_list_screen.dart';
+import 'package:vistor_ai_mobile/features/inspection/presentation/create_inspection_screen.dart';
+import 'package:vistor_ai_mobile/shared/widgets/offline_banner.dart';
 
 // ─── Constantes de rota ───────────────────────────────────────────────────────
 
@@ -8,6 +20,7 @@ class AppRoutes {
   // Auth
   static const splash             = '/';
   static const login              = '/login';
+  static const register           = '/register';
 
   // Bottom nav (raízes das 4 abas)
   static const home               = '/inspections';
@@ -48,7 +61,12 @@ class AppScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(child: navigationShell),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => navigationShell.goBranch(index),
@@ -77,40 +95,61 @@ class AppScaffold extends StatelessWidget {
 
 // ─── Router Builder ──────────────────────────────────────────────────────────
 
-GoRouter buildRouter() {
+class AuthRefreshListenable extends ChangeNotifier {
+  AuthRefreshListenable(AuthCubit cubit) {
+    _subscription = cubit.stream.listen((state) {
+      notifyListeners();
+    });
+  }
+
+  late final StreamSubscription _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
+GoRouter buildRouter(AuthCubit authCubit) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
-    /* 
-    // Guard de autenticação (Será ativado na Sprint 10)
+    refreshListenable: AuthRefreshListenable(authCubit),
     redirect: (context, state) {
+      final authState = authCubit.state;
       final bool loggingIn = state.matchedLocation == AppRoutes.login;
+      final bool registering = state.matchedLocation == AppRoutes.register;
       final bool isSplash = state.matchedLocation == AppRoutes.splash;
 
-      // Mock de estado de autenticação
-      const bool isAuthenticated = false; 
-
-      if (!isAuthenticated && !loggingIn && !isSplash) {
-        return AppRoutes.login;
-      }
-      if (isAuthenticated && (loggingIn || isSplash)) {
-        return AppRoutes.home;
-      }
-      return null;
+      return authState.maybeWhen(
+        authenticated: (_) {
+          if (loggingIn || registering || isSplash) return AppRoutes.home;
+          return null;
+        },
+        unauthenticated: () {
+          if (loggingIn || registering) return null;
+          return AppRoutes.login;
+        },
+        error: (_) {
+           if (loggingIn || registering) return null;
+           return AppRoutes.login;
+        },
+        orElse: () => null, // Mantém no splash enquanto carrega
+      );
     },
-    */
     routes: [
       // Auth & Splash
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Splash Screen')),
-        ),
+        builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Login Screen')),
-        ),
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterScreen(),
       ),
 
       // Shell para as abas principais
@@ -124,15 +163,11 @@ GoRouter buildRouter() {
             routes: [
               GoRoute(
                 path: AppRoutes.home,
-                builder: (context, state) => const Scaffold(
-                  body: Center(child: Text('Home - Lista de Inspeções')),
-                ),
+                builder: (context, state) => const InspectionListScreen(),
                 routes: [
                   GoRoute(
                     path: 'create', // /inspections/create
-                    builder: (context, state) => const Scaffold(
-                      body: Center(child: Text('Nova Inspeção')),
-                    ),
+                    builder: (context, state) => const CreateInspectionScreen(),
                   ),
                   GoRoute(
                     path: ':id', // /inspections/:id
@@ -220,4 +255,10 @@ GoRouter buildRouter() {
       ),
     ],
   );
+}
+
+// Helper para acessar o contexto fora da árvore de widgets se necessário
+class GetItNavigator {
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static BuildContext? get rootContext => navigatorKey.currentContext;
 }

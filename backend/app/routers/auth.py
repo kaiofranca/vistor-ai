@@ -37,6 +37,18 @@ async def login(
     
     return token_response
 
+@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+async def register(
+    payload: UserCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    user = await auth_service.create_user(db, payload)
+    await audit_service.log_action(
+        db, user_id=str(user.id), entity="user", entity_id=str(user.id), 
+        action="register"
+    )
+    return user
+
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh(
     payload: RefreshRequest,
