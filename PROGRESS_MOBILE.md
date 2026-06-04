@@ -10,8 +10,8 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 | Sprint | Descrição | Status | Concluída em |
 |---|---|---|---|
 | 9 | Setup Mobile (Deps, Theme, App, Router, API, Local, Shared) | ✅ Concluído | 01/06/2026 |
-| 10 | Autenticação + Core Services | ⏳ Em andamento | — |
-| 11 | Home + Lista de Inspeções | ⬜ Pendente | — |
+| 10 | Autenticação + Core Services | ✅ Concluído | 04/06/2026 |
+| 11 | Home + Lista de Inspeções | ⏳ Em andamento | — |
 | 12 | Fluxo de Criação de Inspeção | ⬜ Pendente | — |
 | 13 | Mapa + Heatmap | ⬜ Pendente | — |
 | 14 | Offline + Sincronização | ⬜ Pendente | — |
@@ -62,8 +62,8 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 ### Estado dos arquivos tocados
 
 - `mobile/lib/app/theme.dart` — completo.
-- `mobile/lib/app/app.dart` — completo.
-- `mobile/lib/main.dart` — completo.
+- `mobile/lib/app/app.dart" — completo.
+- `mobile/lib/main.dart" — completo.
 
 ### Validações que passaram
 
@@ -233,7 +233,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `mobile/lib/features/auth/presentation/login_screen.dart` — completo.
 - `mobile/lib/features/auth/presentation/widgets/login_form.dart` — completo.
 - `mobile/lib/features/auth/presentation/splash_screen.dart` — completo.
-- `mobile/lib/shared/models/user.dart` — completo.
+- `mobile/lib/shared/models/user.dart" — completo.
 - `mobile/lib/shared/widgets/app_logo.dart" — completo.
 - `mobile/lib/core/di/service_locator.dart" — completo.
 - `mobile/lib/app/router.dart" — atualizado.
@@ -263,7 +263,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
   - `Media`: Fotos, vídeos e anexos vinculados a inspeções.
   - `Report`: Laudos técnicos gerados.
 - Configuração do `analysis_options.yaml` para suporte ao padrão Freezed e exclusão de arquivos gerados da análise.
-- Adição de dependências `json_annotation` e `json_serializable` ao `pubspec.yaml`.
+- Adição de dependências `json_annotation` e `json_serializable` al `pubspec.yaml`.
 - Implementação de testes unitários para validar a serialização JSON dos modelos (`test/shared/models_test.dart`).
 
 ### Estado dos arquivos tocados
@@ -310,7 +310,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `mobile/lib/core/local/inspection_dao.dart` — refatorado.
 - `mobile/lib/features/auth/domain/auth_cubit.dart` — otimizado.
 - `mobile/lib/features/auth/presentation/splash_screen.dart` — atualizado.
-- `mobile/pubspec.yaml` — dependências corrigidas.
+- `mobile/lib/pubspec.yaml` — dependências corrigidas.
 - `mobile/assets/` — estrutura criada.
 - `.gitignore` — consolidado na raiz.
 
@@ -348,7 +348,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `mobile/lib/features/inspection/presentation/widgets/inspection_card.dart` — completo.
 - `mobile/lib/features/inspection/presentation/widgets/severity_badge.dart` — completo.
 - `mobile/lib/app/router.dart` — atualizado com provedores e banners.
-- `mobile/pubspec.yaml` — dependência `intl` adicionada.
+- `mobile/lib/pubspec.yaml` — dependência `intl` adicionada.
 
 ### Validações que passaram
 
@@ -413,7 +413,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 
 - `mobile/android/app/src/main/AndroidManifest.xml` — permissões e cleartext adicionados.
 - `mobile/lib/features/auth/data/auth_repository.dart` — mensagens de erro padronizadas.
-- `mobile/lib/core/utils/env.g.dart` — regenerado com a URL correta.
+- `mobile/lib/core/utils/env.g.dart" — regenerado com a URL correta.
 
 ### Validações que passaram
 
@@ -457,4 +457,54 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `flutter analyze` — No issues found.
 - Implementação da lógica de UI e integração com MediaService concluída.
 - Geração de código via `build_runner` validada.
-- **Pronto para validação manual do fluxo completo e da classificação de IA.**
+- **Fluxo completo validado manualmente:** criação de inspeção, captura de GPS com endereço, upload de fotos e classificação por IA funcionando conforme esperado.
+- **Correção técnica:** Adição do campo `title` e suporte a miniaturas na lista inicial validados.
+
+---
+
+## Task 14
+
+**Data:** 04/06/2026
+
+**Sprint:** 10 - Autenticação + Core Services
+**Sessão:** Guard de Autenticação e Testes Unitários (Task 10.5)
+
+### O que foi feito
+
+- Ativação do **Guard de Autenticação** no `GoRouter` para redirecionamento automático (Login <-> Home).
+- Refatoração do `AppScaffold` e `Router` para utilizar `context.read<AuthCubit>()` no gerenciamento de acesso.
+- Configuração do `MultiBlocProvider` global no `lib/app/app.dart`, injetando `AuthCubit` e `InspectionCubit`.
+- Implementação de lógica de verificação automática de sessão (`checkAuth`) na inicialização do app.
+- Criação de suíte de testes unitários para `AuthCubit` (Login, Logout, Erros).
+- Criação de suíte de testes unitários para `InspectionCubit` (Carga de lista, Lista vazia, Erros).
+- Utilização de `mocktail` para mocks de repositório e `bloc_test` para validação de estados.
+
+### Estado dos arquivos tocados
+
+- `mobile/lib/app/app.dart` — MultiBlocProvider e checkAuth adicionados.
+- `mobile/lib/app/router.dart` — Guard ativado e simplificado.
+- `mobile/test/features/auth/auth_cubit_test.dart` — Suíte de testes criada.
+- `mobile/test/features/inspection/inspection_cubit_test.dart` — Suíte de testes criada.
+
+### Validações que passaram
+
+- **6 testes unitários aprovados** com 100% de sucesso.
+- Redirecionamento automático validado: Usuário deslogado é enviado para `/login`.
+- `flutter analyze` — No issues found.
+
+---
+
+### ✅ Checklist de conclusão da Sprint 10
+
+| Status | Demandas |
+|---|---|
+| [✅] | Login com usuário real → redireciona para Home |
+| [✅] | Home exibe inspeções do banco com InspectionCard correto |
+| [✅] | SeverityBadge com fundo sólido (não fundo claro) |
+| [✅] | Fluxo completo: Nova Inspeção → GPS → Foto → IA → lista atualizada |
+| [✅] | AiResultCard: score < 0.55 desabilita botão Confirmar |
+| [✅] | Guard: sem token → Login; com token → Home |
+| [✅] | 6 testes de Cubit passando |
+| [✅] | 5 commits + tag v0.10.0-core-flow |
+| [✅] | Tabela de controle preenchida (Gemini CLI + 04/06/2026) |
+| [✅] | PROGRESS.md atualizado |

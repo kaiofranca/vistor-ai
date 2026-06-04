@@ -163,10 +163,7 @@ GoRouter buildRouter(AuthCubit authCubit) {
             routes: [
               GoRoute(
                 path: AppRoutes.home,
-                builder: (context, state) => BlocProvider(
-                  create: (context) => getIt<InspectionCubit>(),
-                  child: const InspectionListScreen(),
-                ),
+                builder: (context, state) => const InspectionListScreen(),
                 routes: [
                   GoRoute(
                     path: 'create', // /inspections/create
