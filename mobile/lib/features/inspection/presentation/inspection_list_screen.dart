@@ -152,7 +152,14 @@ class _InspectionListScreenState extends State<InspectionListScreen> {
                                         child: SlideAnimation(
                                           verticalOffset: 50.0,
                                           child: FadeInAnimation(
-                                            child: InspectionCard(inspection: filtered[index]),
+                                            child: InspectionCard(
+                                              inspection: filtered[index],
+                                              onTap: () {
+                                                if (context.mounted) {
+                                                  context.read<InspectionCubit>().load();
+                                                }
+                                              },
+                                            ),
                                           ),
                                         ),
                                       );

@@ -8,6 +8,7 @@ import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
 import 'package:vistor_ai_mobile/features/inspection/data/inspection_repository.dart';
 import 'package:vistor_ai_mobile/features/inspection/domain/create_inspection_cubit.dart';
 import 'package:vistor_ai_mobile/features/inspection/domain/inspection_cubit.dart';
+import 'package:vistor_ai_mobile/features/inspection/domain/inspection_detail_cubit.dart';
 import 'package:vistor_ai_mobile/core/services/gps_service.dart';
 import 'package:vistor_ai_mobile/core/services/media_service.dart';
 
@@ -66,6 +67,13 @@ Future<void> setupLocator() async {
       gpsService: getIt<GpsService>(),
       mediaService: getIt<MediaService>(),
       repository: getIt<InspectionRepository>(),
+    ),
+  );
+
+  getIt.registerFactoryParam<InspectionDetailCubit, String, void>(
+    (id, _) => InspectionDetailCubit(
+      repository: getIt<InspectionRepository>(),
+      inspectionId: id,
     ),
   );
 }

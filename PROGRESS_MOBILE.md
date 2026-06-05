@@ -508,3 +508,43 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 | [✅] | 5 commits + tag v0.10.0-core-flow |
 | [✅] | Tabela de controle preenchida (Gemini CLI + 04/06/2026) |
 | [✅] | PROGRESS.md atualizado |
+
+---
+
+## Task 15
+
+**Data:** 05/06/2026
+
+**Sprint:** 11 - Detalhe de Inspeção + Gerar Laudo
+**Sessão:** Detalhe da Inspeção (11.1)
+
+### O que foi feito
+
+- Implementação da tela `InspectionDetailScreen` utilizando `CustomScrollView` e `SliverAppBar` pinned (260dp).
+- Configuração de `FlexibleSpaceBar` com gradient overlay, título dinâmico e `SeverityBadge` em tamanho grande.
+- Implementação do widget `StatusTimeline` vertical para visualização do histórico de eventos da inspeção.
+- Criação do `InspectionDetailCubit` e `InspectionDetailState` para gerenciamento de estado granular (detalhe, histórico, report).
+- Integração da animação `Hero` entre `InspectionCard` e `InspectionDetailScreen` (tag `inspection-{id}`).
+- Implementação da `InfoGrid` 2x2 com ícones `LucideIcons` para Localização, Categoria, Data e Inspetor.
+- Adição da seção de "Análise de IA" com `LinearProgressIndicator` colorido conforme score e botões de Confirmar/Corrigir.
+- Configuração de bottom bar fixa para geração de laudo PDF (habilitada apenas para status `in_progress` ou `resolved`, cumprindo RN-05).
+- Atualização do `InspectionRepository` com métodos `getHistory` e `generateReport`.
+
+### Estado dos arquivos tocados
+
+- `mobile/lib/features/inspection/presentation/inspection_detail_screen.dart` — completo.
+- `mobile/lib/features/inspection/presentation/widgets/status_timeline.dart` — completo.
+- `mobile/lib/features/inspection/domain/inspection_detail_cubit.dart` — completo.
+- `mobile/lib/features/inspection/domain/inspection_detail_state.dart` — completo.
+- `mobile/lib/features/inspection/presentation/widgets/inspection_card.dart` — navegação e Hero adicionados.
+- `mobile/lib/features/inspection/presentation/widgets/severity_badge.dart` — suporte a `isLarge` adicionado.
+- `mobile/lib/shared/models/audit_log.dart` — criado.
+- `mobile/lib/core/di/service_locator.dart` — Cubit registrado.
+- `mobile/lib/app/router.dart` — rota `/:id` configurada com Provider.
+
+### Validadores que passaram
+
+- `flutter analyze` — No issues found!
+- `build_runner` — Geração de código Freezed e JSON concluída.
+- Ciclo de navegação (Tap Card -> Detalhe) validado arquiteturalmente.
+
