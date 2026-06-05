@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:vistor_ai_mobile/core/di/service_locator.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_state.dart';
 import 'package:vistor_ai_mobile/features/auth/presentation/login_screen.dart';
 import 'package:vistor_ai_mobile/features/auth/presentation/register_screen.dart';
 import 'package:vistor_ai_mobile/features/auth/presentation/splash_screen.dart';
-import 'package:vistor_ai_mobile/features/inspection/domain/inspection_cubit.dart';
 import 'package:vistor_ai_mobile/features/inspection/presentation/inspection_list_screen.dart';
 import 'package:vistor_ai_mobile/features/inspection/presentation/create_inspection_screen.dart';
 import 'package:vistor_ai_mobile/shared/widgets/offline_banner.dart';
