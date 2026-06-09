@@ -13,6 +13,9 @@ import 'package:vistor_ai_mobile/features/inspection/domain/inspection_detail_cu
 import 'package:vistor_ai_mobile/features/inspection/presentation/inspection_list_screen.dart';
 import 'package:vistor_ai_mobile/features/inspection/presentation/create_inspection_screen.dart';
 import 'package:vistor_ai_mobile/features/inspection/presentation/inspection_detail_screen.dart';
+import 'package:vistor_ai_mobile/features/report/presentation/report_list_screen.dart';
+import 'package:vistor_ai_mobile/features/report/presentation/report_viewer_screen.dart';
+import 'package:vistor_ai_mobile/shared/models/report.dart';
 import 'package:vistor_ai_mobile/shared/widgets/offline_banner.dart';
 
 // ─── Constantes de rota ───────────────────────────────────────────────────────
@@ -188,15 +191,19 @@ GoRouter buildRouter(AuthCubit authCubit) {
             routes: [
               GoRoute(
                 path: AppRoutes.reports,
-                builder: (context, state) => const Scaffold(
-                  body: Center(child: Text('Lista de Laudos')),
-                ),
+                builder: (context, state) => const ReportListScreen(),
                 routes: [
                   GoRoute(
                     path: ':id', // /reports/:id
-                    builder: (context, state) => Scaffold(
-                      body: Center(child: Text('Visualizador de Laudo ${state.pathParameters['id']}')),
-                    ),
+                    builder: (context, state) {
+                      final report = state.extra as Report?;
+                      if (report != null) {
+                        return ReportViewerScreen(report: report);
+                      }
+                      return const Scaffold(
+                        body: Center(child: Text('Erro: Laudo não carregado')),
+                      );
+                    },
                   ),
                 ],
               ),

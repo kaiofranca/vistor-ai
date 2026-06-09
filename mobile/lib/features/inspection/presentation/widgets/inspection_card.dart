@@ -6,6 +6,49 @@ import 'package:vistor_ai_mobile/features/inspection/presentation/widgets/severi
 import 'package:vistor_ai_mobile/shared/models/inspection.dart';
 import 'package:intl/intl.dart';
 
+class _StatusIndicator extends StatelessWidget {
+  final InspectionStatus status;
+
+  const _StatusIndicator({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    Color color;
+    IconData icon;
+    
+    switch (status) {
+      case InspectionStatus.open:
+        color = Colors.blue;
+        icon = LucideIcons.circle;
+        break;
+      case InspectionStatus.inProgress:
+        color = Colors.orange;
+        icon = LucideIcons.playCircle;
+        break;
+      case InspectionStatus.resolved:
+        color = Colors.green;
+        icon = LucideIcons.checkCircle2;
+        break;
+      case InspectionStatus.archived:
+        color = Colors.grey;
+        icon = LucideIcons.archive;
+        break;
+      default:
+        color = Colors.grey;
+        icon = LucideIcons.helpCircle;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: color, size: 16),
+    );
+  }
+}
+
 class InspectionCard extends StatefulWidget {
   final Inspection inspection;
   final VoidCallback? onTap;
@@ -151,6 +194,8 @@ class _InspectionCardState extends State<InspectionCard> {
               ),
               
               SeverityBadge(severity: widget.inspection.severity),
+              const SizedBox(width: 8),
+              _StatusIndicator(status: widget.inspection.status),
             ],
           ),
         ),

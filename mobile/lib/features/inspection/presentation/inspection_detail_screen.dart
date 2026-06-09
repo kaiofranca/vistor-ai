@@ -13,6 +13,60 @@ import 'package:vistor_ai_mobile/shared/widgets/error_state.dart';
 import 'package:vistor_ai_mobile/shared/widgets/loading_state.dart';
 import 'package:vistor_ai_mobile/shared/widgets/glass_card.dart';
 import 'package:vistor_ai_mobile/shared/widgets/error_snackbar.dart';
+import 'package:vistor_ai_mobile/features/report/domain/report_cubit.dart';
+import 'package:vistor_ai_mobile/features/report/domain/report_state.dart';
+import 'package:vistor_ai_mobile/shared/widgets/loading_overlay.dart';
+import 'package:go_router/go_router.dart';
+
+class _StatusBadge extends StatelessWidget {
+  final InspectionStatus status;
+
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    Color color;
+    String label;
+
+    switch (status) {
+      case InspectionStatus.open:
+        color = Colors.blue;
+        label = 'ABERTO';
+        break;
+      case InspectionStatus.inProgress:
+        color = Colors.orange;
+        label = 'EM ANDAMENTO';
+        break;
+      case InspectionStatus.resolved:
+        color = Colors.green;
+        label = 'RESOLVIDO';
+        break;
+      case InspectionStatus.archived:
+        color = Colors.grey;
+        label = 'ARQUIVADO';
+        break;
+      default:
+        color = Colors.grey;
+        label = 'DESCONHECIDO';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
 
 class InspectionDetailScreen extends StatefulWidget {
   const InspectionDetailScreen({super.key});
@@ -30,35 +84,67 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<InspectionDetailCubit, InspectionDetailState>(
-      listener: (context, state) {
-        state.maybeWhen(
-          loaded: (insp, history, updating, generating, error) {
-            if (error != null) {
-              showErrorSnackbar(context, error);
-            }
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<InspectionDetailCubit, InspectionDetailState>(
+          listener: (context, state) {
+            state.maybeWhen(
+              loaded: (insp, history, updating, generating, error) {
+                if (error != null) {
+                  showErrorSnackbar(context, error);
+                }
+              },
+              orElse: () {},
+            );
           },
-          orElse: () {},
-        );
-      },
-      builder: (context, state) {
-        return Scaffold(
-          body: state.when(
-            initial: () => const SizedBox.shrink(),
-            loading: () => const AppLoadingState(message: 'Carregando detalhes...'),
-            error: (msg) => AppErrorState(
-              message: msg,
-              onRetry: () => context.read<InspectionDetailCubit>().load(),
-            ),
-            loaded: (inspection, history, isUpdating, isGenerating, error) => 
-                _buildContent(context, inspection, history, isUpdating, isGenerating),
-          ),
-          bottomNavigationBar: state.maybeMap(
-            loaded: (s) => _buildBottomBar(context, s.inspection, s.isGeneratingReport),
-            orElse: () => null,
-          ),
-        );
-      },
+        ),
+        BlocListener<ReportCubit, ReportState>(
+          listener: (context, state) {
+            state.maybeWhen(
+              generated: (report) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Laudo técnico gerado com sucesso!'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+                context.push('/reports/${report.id}', extra: report);
+              },
+              error: (msg) => showErrorSnackbar(context, msg),
+              orElse: () {},
+            );
+          },
+        ),
+      ],
+      child: BlocBuilder<InspectionDetailCubit, InspectionDetailState>(
+        builder: (context, state) {
+          return Stack(
+            children: [
+              Scaffold(
+                body: state.when(
+                  initial: () => const SizedBox.shrink(),
+                  loading: () => const AppLoadingState(message: 'Carregando detalhes...'),
+                  error: (msg) => AppErrorState(
+                    message: msg,
+                    onRetry: () => context.read<InspectionDetailCubit>().load(),
+                  ),
+                  loaded: (inspection, history, isUpdating, isGenerating, error) => 
+                      _buildContent(context, inspection, history, isUpdating, isGenerating),
+                ),
+                bottomNavigationBar: state.maybeMap(
+                  loaded: (s) => _buildBottomBar(context, s.inspection),
+                  orElse: () => null,
+                ),
+              ),
+              // Overlay de geração de laudo (via ReportCubit)
+              context.watch<ReportCubit>().state.maybeWhen(
+                    generating: () => const AppLoadingOverlay(message: 'Gerando laudo técnico...'),
+                    orElse: () => const SizedBox.shrink(),
+                  ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -88,9 +174,15 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SeverityBadge(
-                  severity: inspection.severity ?? InspectionSeverity.pendingReview,
-                  isLarge: true,
+                Row(
+                  children: [
+                    SeverityBadge(
+                      severity: inspection.severity ?? InspectionSeverity.pendingReview,
+                      isLarge: true,
+                    ),
+                    const SizedBox(width: 8),
+                    _StatusBadge(status: inspection.status),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -212,7 +304,7 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
               context, 
               LucideIcons.user, 
               'Inspetor', 
-              inspection.inspector?.name ?? '---',
+              inspection.inspector?.name ?? 'Não atribuído',
             ),
           ],
         ),
@@ -225,21 +317,26 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: AppColors.primary),
-          const SizedBox(width: AppSpacing.sm),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 20, color: AppColors.primary),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: const TextStyle(fontSize: 11, color: AppColors.subtextLight, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                 ),
               ],
             ),
@@ -251,84 +348,61 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
 
   Widget _buildAiAnalysisSection(BuildContext context, Inspection inspection, bool isUpdating) {
     final score = inspection.aiScore ?? 0.0;
-    final isConfirmed = inspection.humanLabel != null;
+    final color = _getScoreColor(score);
 
     return GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(LucideIcons.bot, size: 20, color: AppColors.primary),
-              SizedBox(width: 8),
-              Text(
-                'ANÁLISE DE IA',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1.2),
+              const Icon(LucideIcons.bot, color: AppColors.primary),
+              const SizedBox(width: 8),
+              const Text(
+                'Análise de Inteligência Artificial',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 16),
           Text(
-            inspection.aiLabel ?? 'Analizando...',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            'A IA identificou: ${inspection.aiLabel}',
+            style: const TextStyle(fontSize: 14),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: LinearProgressIndicator(
                   value: score,
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                  color: _getScoreColor(score),
-                  minHeight: 8,
+                  backgroundColor: color.withValues(alpha: 0.1),
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
               const SizedBox(width: 12),
               Text(
                 '${(score * 100).toStringAsFixed(0)}%',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: _getScoreColor(score),
-                ),
+                style: TextStyle(color: color, fontWeight: FontWeight.bold),
               ),
             ],
           ),
-          if (!isConfirmed) ...[
-            const SizedBox(height: AppSpacing.lg),
+          if (inspection.humanLabel == null) ...[
+            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: isUpdating ? null : () => context.read<InspectionDetailCubit>().confirmAiLabel(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.success,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('Confirmar'),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
                   child: OutlinedButton(
                     onPressed: isUpdating ? null : () => _showCorrectionDialog(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
                     child: const Text('Corrigir'),
                   ),
                 ),
-              ],
-            ),
-          ] else ...[
-            const SizedBox(height: AppSpacing.md),
-            const Row(
-              children: [
-                Icon(LucideIcons.checkCircle, size: 16, color: AppColors.success),
-                SizedBox(width: 8),
-                Text(
-                  'Classificação confirmada',
-                  style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 12),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: isUpdating ? null : () => context.read<InspectionDetailCubit>().confirmAiLabel(),
+                    child: const Text('Confirmar'),
+                  ),
                 ),
               ],
             ),
@@ -343,7 +417,7 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Mídia',
+          'Mídias Registradas',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -382,9 +456,19 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, Inspection inspection, bool isGenerating) {
+  Widget _buildBottomBar(BuildContext context, Inspection inspection) {
+    final reportState = context.watch<ReportCubit>().state;
+    final isGenerating = reportState.maybeWhen(generating: () => true, orElse: () => false);
+
+    final isUpdating = context.watch<InspectionDetailCubit>().state.maybeMap(
+      loaded: (s) => s.isUpdatingStatus,
+      orElse: () => false,
+    );
+
     final canGenerate = inspection.status == InspectionStatus.inProgress || 
                        inspection.status == InspectionStatus.resolved;
+
+    final isOpen = inspection.status == InspectionStatus.open;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -399,35 +483,27 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
         ],
       ),
       child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: (canGenerate && !isGenerating) 
-                    ? () => context.read<InspectionDetailCubit>().generateReport() 
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: isGenerating
-                    ? const SizedBox(
-                        height: 20, width: 20, 
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Gerar Laudo Técnico'),
-              ),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: (isUpdating || isGenerating) 
+                ? null 
+                : (isOpen 
+                    ? () => context.read<InspectionDetailCubit>().updateStatus(InspectionStatus.inProgress)
+                    : (canGenerate 
+                        ? () => context.read<ReportCubit>().generate(inspection.id) 
+                        : null)),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: isOpen ? AppColors.primary : null,
             ),
-            const SizedBox(width: AppSpacing.md),
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(LucideIcons.chevronRight, color: Colors.white),
-            ),
-          ],
+            child: (isUpdating || isGenerating)
+                ? const SizedBox(
+                    height: 20, width: 20, 
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : Text(isOpen ? 'Iniciar Inspeção' : 'Gerar Laudo Técnico'),
+          ),
         ),
       ),
     );

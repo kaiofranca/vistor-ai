@@ -17,10 +17,11 @@ class InspectionRepository {
   })  : _apiClient = apiClient,
         _inspectionDao = inspectionDao;
 
-  Future<List<Inspection>> getAll({String? status, String? cursor}) async {
+  Future<List<Inspection>> getAll({String? status, String? severity, String? cursor}) async {
     try {
       final queryParams = <String, dynamic>{};
       if (status != null) queryParams['status'] = status;
+      if (severity != null) queryParams['severity'] = severity;
       if (cursor != null) queryParams['cursor'] = cursor;
 
       final response = await _apiClient.dio.get(
