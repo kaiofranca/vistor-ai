@@ -627,3 +627,32 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 
 - `flutter analyze lib/features/map/` — No issues found.
 - Código estruturado seguindo os princípios de separação de responsabilidades (Feature-First).
+
+---
+
+## Task 18
+
+**Data:** 09/06/2026
+
+**Sprint:** 12 - Mapa + Heatmap
+**Sessão:** 12.2 — Map screen + markers + bottom sheet
+
+### O que foi feito
+
+- **UI do Mapa:**
+  - Implementação do `MapScreen` com o `FlutterMap` usando `TileLayer` do OpenStreetMap e `MarkerClusterLayerWidget`.
+  - Construção da interface com o estilo *glassmorphism* (botão "Filtrar Mapa") e controles flutuantes com sombras e cores exatas do Design System.
+  - Implementação da `DraggableScrollableSheet` contendo uma lista horizontal para inspeções próximas (NearbyCard).
+- **Componentes:**
+  - Criação do `InspectionMarker`, um ícone *tear-drop* que reflete a severidade da inspeção, com suporte a popup/dialog mostrando a *thumbnail* e botão para "Ver detalhes".
+  - Implementação do `MapFilterSheet` (bottom sheet) com slider para controle de raio (`_currentRadius`) e `FilterChip` dinâmicos para `Severidade` e `Status`.
+  - Criação do `NearbyCard` com exibição concisa de detalhes da inspeção e indicação colorida (borda esquerda) conforme severidade.
+- **Integração:**
+  - `MapCubit` totalmente integrado à tela, lidando com alternância de `activeLayer` (entre marcadores e heatmap).
+  - Controle de clusters (`flutter_map_marker_cluster`) para agregação de pins num certo raio com *zoom-out*.
+
+### Validações que passaram
+
+- `flutter analyze lib/features/map/` — No issues found.
+- Correção de `deprecated_member_use` de `.withOpacity` para `.withValues` validada e aplicada.
+- Redirecionamento `NearbyCard` → `/inspections/:id` devidamente configurado via GoRouter.
