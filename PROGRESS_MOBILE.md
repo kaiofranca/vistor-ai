@@ -596,3 +596,34 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - [✅] 2 commits + tag v0.11.0-inspection-report
 - [✅] Tabela de controle preenchida (Kaio + 09/06/2026)
 - [✅] PROGRESS_MOBILE.md atualizado
+
+---
+
+## Task 17
+
+**Data:** 09/06/2026
+
+**Sprint:** 12 - Mapa + Heatmap
+**Sessão:** 12.1 — Map repository + Map cubit
+
+### O que foi feito
+
+- **Modelagem:**
+  - Criação do modelo `HeatmapPoint` para representação de dados de calor.
+  - Definição do `MapData` e `MapState` utilizando Freezed, com suporte a múltiplas camadas (marcadores/heatmap).
+- **Data Layer:**
+  - Implementação do `MapRepository` com integração aos endpoints `/geo/nearby` (inspeções próximas) e `/geo/export` (GeoJSON para heatmap).
+  - Lógica de parsing de GeoJSON para `HeatmapPoint` com pesos baseados na severidade.
+- **Domain Layer:**
+  - Implementação do `MapCubit` com carregamento paralelo (`Future.wait`) para otimização de performance.
+  - Funcionalidade de alternância de camadas (`toggleLayer`) e atualização dinâmica de raio de busca (`updateRadius`).
+- **Infraestrutura:**
+  - Registro do `MapRepository` e `MapCubit` no Service Locator (GetIt).
+  - Injeção global do `MapCubit` no `MultiBlocProvider` da aplicação.
+- **Geração de Código:**
+  - Execução do `build_runner` para geração de arquivos `.freezed.dart`.
+
+### Validações que passaram
+
+- `flutter analyze lib/features/map/` — No issues found.
+- Código estruturado seguindo os princípios de separação de responsabilidades (Feature-First).
