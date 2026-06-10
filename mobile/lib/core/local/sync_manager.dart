@@ -35,11 +35,13 @@ class SyncManager {
         final response = await _apiClient.dio.post(
           AppEndpoints.inspections,
           data: {
+            'title': insp.title,
             'category': insp.category,
             'description': insp.description,
             'lat': insp.lat,
             'lon': insp.lon,
-            // Adicione outros campos conforme o schema InspectionCreate do backend
+            'gps_accuracy': insp.gpsAccuracy,
+            'address': insp.address,
           },
         );
 

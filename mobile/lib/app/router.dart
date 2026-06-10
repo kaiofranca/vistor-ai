@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:vistor_ai_mobile/core/di/service_locator.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_state.dart';
@@ -18,6 +19,7 @@ import 'package:vistor_ai_mobile/features/map/presentation/map_screen.dart';
 import 'package:vistor_ai_mobile/features/report/presentation/report_list_screen.dart';
 import 'package:vistor_ai_mobile/features/report/presentation/report_viewer_screen.dart';
 import 'package:vistor_ai_mobile/shared/models/report.dart';
+import 'package:vistor_ai_mobile/shared/screens/offline_screen.dart';
 import 'package:vistor_ai_mobile/shared/widgets/offline_banner.dart';
 
 // ─── Constantes de rota ───────────────────────────────────────────────────────
@@ -107,13 +109,15 @@ GoRouter buildRouter(AuthCubit authCubit) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
     refreshListenable: AuthRefreshListenable(authCubit),
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final authState = authCubit.state;
       final bool loggingIn = state.matchedLocation == AppRoutes.login;
       final bool registering = state.matchedLocation == AppRoutes.register;
       final bool isSplash = state.matchedLocation == AppRoutes.splash;
+      final bool isOffline = state.matchedLocation == AppRoutes.offline;
 
-      return authState.maybeWhen(
+      // 1. Redirecionamento de Auth
+      final String? authRedirect = authState.maybeWhen(
         authenticated: (_) {
           if (loggingIn || registering || isSplash) return AppRoutes.home;
           return null;
@@ -126,8 +130,29 @@ GoRouter buildRouter(AuthCubit authCubit) {
            if (loggingIn || registering) return null;
            return AppRoutes.login;
         },
-        orElse: () => null, // Mantém no splash enquanto carrega
+        orElse: () => null,
       );
+
+      if (authRedirect != null) return authRedirect;
+
+      // 2. Redirecionamento de Conectividade (UC-03 / RN-01)
+      // Funcionalidades que REQUEREM rede: Mapa (heatmap), Laudos (geração remota), Gestão
+      final networkDependentRoutes = [
+        AppRoutes.map,
+        AppRoutes.reports,
+        AppRoutes.teamManagement,
+        AppRoutes.userManagement,
+        AppRoutes.exportData,
+      ];
+
+      if (networkDependentRoutes.any((route) => state.matchedLocation.startsWith(route))) {
+        final connectivityResult = await Connectivity().checkConnectivity();
+        if (connectivityResult == ConnectivityResult.none) {
+          return AppRoutes.offline;
+        }
+      }
+
+      return null;
     },
     routes: [
       // Auth & Splash
@@ -245,9 +270,7 @@ GoRouter buildRouter(AuthCubit authCubit) {
       // Utilitário
       GoRoute(
         path: AppRoutes.offline,
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Modo Offline')),
-        ),
+        builder: (context, state) => const OfflineScreen(),
       ),
     ],
   );

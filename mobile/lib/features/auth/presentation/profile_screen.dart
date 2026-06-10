@@ -126,7 +126,19 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: AppSpacing.md),
                           OutlinedButton.icon(
-                            onPressed: () => getIt<SyncManager>().syncAll(),
+                            onPressed: () async {
+                              final scaffoldMessenger = ScaffoldMessenger.of(context);
+                              scaffoldMessenger.showSnackBar(
+                                const SnackBar(content: Text("Sincronizando dados...")),
+                              );
+                              await getIt<SyncManager>().syncAll();
+                              scaffoldMessenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text("Sincronização concluída!"),
+                                  backgroundColor: AppColors.success,
+                                ),
+                              );
+                            },
                             icon: const Icon(LucideIcons.refreshCcw, size: 18),
                             label: const Text("Forçar Sincronização"),
                             style: OutlinedButton.styleFrom(
