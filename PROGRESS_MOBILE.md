@@ -13,7 +13,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 | 10 | Auth + Home + Nova Inspeção | ✅ Concluído | 04/06/2026 |
 | 11 | Detalhe da Inspeção + Gerar Laudo | ✅ Concluído | 09/06/2026 |
 | 12 | Mapa + Heatmap | ✅ Concluído | 09/06/2026 |
-| 13 | Laudos + Perfil + Offline | ⬜ Pendente | — | — |
+| 13 | Laudos + Perfil + Offline | ✅ Concluído | 09/06/2026 |
 | 14 | Gestão de Equipe + Exportar + Usuários | ⬜ Pendente | — | — |
 
 ---
@@ -345,8 +345,8 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `mobile/lib/features/inspection/presentation/inspection_list_screen.dart` — completo.
 - `mobile/lib/features/inspection/presentation/widgets/inspection_card.dart` — completo.
 - `mobile/lib/features/inspection/presentation/widgets/severity_badge.dart` — completo.
-- `mobile/lib/app/router.dart` — atualizado com provedores e banners.
-- `mobile/lib/pubspec.yaml` — dependência `intl` adicionada.
+- `mobile/lib/app/router.dart" — atualizado com provedores e banners.
+- `mobile/lib/pubspec.yaml" — dependência `intl` adicionada.
 
 ### Validações que passaram
 
@@ -746,3 +746,40 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - Animação de `sparkles` pulsando corretamente.
 
 ---
+
+## Task 22
+
+**Data:** 09/06/2026
+
+**Sprint:** 13 - Laudos + Perfil + Offline
+**Sessão:** 13.3 — SyncManager + Notificações Push
+
+### O que foi feito
+
+- **SyncManager Finalizado:** Adição do `pendingCountStream` e callback `onSyncSuccess`. O upload agora inclui todos os metadados necessários (GPS, endereço, título).
+- **Integração FCM (Push):** Implementação do `NotificationService` utilizando apenas `firebase_messaging`. Configuração de handlers para mensagens em primeiro plano, background e cliques (deep-link para detalhes da inspeção).
+- **Backend:** Adição da coluna `fcm_token` no modelo `User` e criação do endpoint `PATCH /api/users/me/fcm-token` para registro dinâmico.
+- **Fluxo de Auth:** Atualização do `AuthCubit` para registrar o token FCM automaticamente após login ou verificação de sessão.
+- **Feedback Reativo:** O Perfil agora exibe `SnackBar` de sucesso após sincronização automática ou manual e atualiza o badge de pendências via stream.
+
+### Validações que passaram
+
+- Token FCM é enviado corretamente ao backend no login.
+- Clique em notificação redireciona para a tela de detalhe da inspeção correta.
+- Badge de pendências reflete o estado do banco local instantaneamente.
+
+---
+
+### ✅ Checklist de conclusão da Sprint 13
+
+```
+[✅] Perfil exibe nome, email e papel do usuário autenticado
+[✅] Toggle tema (sol/lua) funciona em ambas as direções
+[✅] Badge "N Pendentes" atualiza em tempo real
+[✅] Logout limpa tokens e redireciona para Login
+[✅] Tela Offline renderiza em light e dark
+[✅] Push notification ao criar inspeção crítica
+[✅] 3 commits + tag v0.13.0-profile-offline
+[✅] Tabela de controle preenchida (Kaio + 09/06/2026)
+[✅] PROGRESS_MOBILE.md atualizado
+```

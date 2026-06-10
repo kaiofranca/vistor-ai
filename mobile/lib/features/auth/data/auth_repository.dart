@@ -134,5 +134,16 @@ class AuthRepository {
       throw AuthException(message);
     }
   }
+
+  Future<void> updateFcmToken(String token) async {
+    try {
+      await _apiClient.dio.patch(
+        AppEndpoints.fcmToken,
+        data: {'fcm_token': token},
+      );
+    } catch (_) {
+      // Falha silenciosa para não travar o login
+    }
+  }
 }
 

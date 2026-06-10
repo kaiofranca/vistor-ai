@@ -6,6 +6,7 @@ import 'package:vistor_ai_mobile/core/local/database.dart';
 import 'package:vistor_ai_mobile/core/local/inspection_dao.dart';
 import 'package:vistor_ai_mobile/core/local/sync_manager.dart';
 import 'package:vistor_ai_mobile/core/services/theme_service.dart';
+import 'package:vistor_ai_mobile/core/services/notification_service.dart';
 import 'package:vistor_ai_mobile/features/auth/data/auth_repository.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
 import 'package:vistor_ai_mobile/features/inspection/data/inspection_repository.dart';
@@ -25,6 +26,7 @@ Future<void> setupLocator() async {
   // Services
   final themeService = await ThemeService.init();
   getIt.registerSingleton<ThemeService>(themeService);
+  getIt.registerSingleton<NotificationService>(NotificationService());
   getIt.registerSingleton<ValueNotifier<ThemeMode>>(
     ValueNotifier(themeService.themeMode),
   );

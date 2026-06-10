@@ -107,6 +107,7 @@ class AuthRefreshListenable extends ChangeNotifier {
 
 GoRouter buildRouter(AuthCubit authCubit) {
   return GoRouter(
+    navigatorKey: GetItNavigator.navigatorKey,
     initialLocation: AppRoutes.splash,
     refreshListenable: AuthRefreshListenable(authCubit),
     redirect: (context, state) async {
@@ -114,7 +115,6 @@ GoRouter buildRouter(AuthCubit authCubit) {
       final bool loggingIn = state.matchedLocation == AppRoutes.login;
       final bool registering = state.matchedLocation == AppRoutes.register;
       final bool isSplash = state.matchedLocation == AppRoutes.splash;
-      final bool isOffline = state.matchedLocation == AppRoutes.offline;
 
       // 1. Redirecionamento de Auth
       final String? authRedirect = authState.maybeWhen(
@@ -136,7 +136,6 @@ GoRouter buildRouter(AuthCubit authCubit) {
       if (authRedirect != null) return authRedirect;
 
       // 2. Redirecionamento de Conectividade (UC-03 / RN-01)
-      // Funcionalidades que REQUEREM rede: Mapa (heatmap), Laudos (geração remota), Gestão
       final networkDependentRoutes = [
         AppRoutes.map,
         AppRoutes.reports,

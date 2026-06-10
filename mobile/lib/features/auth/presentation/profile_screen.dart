@@ -9,8 +9,36 @@ import 'package:vistor_ai_mobile/features/auth/domain/auth_cubit.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_state.dart';
 import 'package:vistor_ai_mobile/shared/models/user.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Configura o feedback de sincronização
+    getIt<SyncManager>().onSyncSuccess = (count) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("$count inspeções sincronizadas com sucesso!"),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    };
+  }
+
+  @override
+  void dispose() {
+    getIt<SyncManager>().onSyncSuccess = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,14 +122,22 @@ class ProfileScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Última sync: Há 2 min",
+                                "Estado da sincronização",
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                               StreamBuilder<int>(
-                                stream: getIt<SyncManager>().pendingCount,
+                                stream: getIt<SyncManager>().pendingCountStream,
                                 builder: (context, snapshot) {
                                   final count = snapshot.data ?? 0;
-                                  if (count == 0) return const SizedBox.shrink();
+                                  if (count == 0) {
+                                    return const Row(
+                                      children: [
+                                        Icon(LucideIcons.checkCircle2, color: AppColors.success, size: 14),
+                                        SizedBox(width: 4),
+                                        Text("Tudo em dia", style: TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.bold)),
+                                      ],
+                                    );
+                                  }
                                   return Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
@@ -129,15 +165,9 @@ class ProfileScreen extends StatelessWidget {
                             onPressed: () async {
                               final scaffoldMessenger = ScaffoldMessenger.of(context);
                               scaffoldMessenger.showSnackBar(
-                                const SnackBar(content: Text("Sincronizando dados...")),
+                                const SnackBar(content: Text("Iniciando sincronização...")),
                               );
                               await getIt<SyncManager>().syncAll();
-                              scaffoldMessenger.showSnackBar(
-                                const SnackBar(
-                                  content: Text("Sincronização concluída!"),
-                                  backgroundColor: AppColors.success,
-                                ),
-                              );
                             },
                             icon: const Icon(LucideIcons.refreshCcw, size: 18),
                             label: const Text("Forçar Sincronização"),

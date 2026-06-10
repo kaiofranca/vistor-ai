@@ -9,10 +9,14 @@ class SyncManager {
   final InspectionDao _inspectionDao;
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult>? _subscription;
+  
+  // Callback opcional para notificar a UI sobre o progresso
+  void Function(int count)? onSyncSuccess;
 
   SyncManager(this._apiClient, this._inspectionDao);
 
   Stream<int> get pendingCount => _inspectionDao.watchPendingCount();
+  Stream<int> get pendingCountStream => pendingCount;
 
   void startListening() {
     _subscription = _connectivity.onConnectivityChanged.listen((result) {
@@ -30,6 +34,7 @@ class SyncManager {
     final pending = await _inspectionDao.getPendingInspections();
     if (pending.isEmpty) return;
 
+    int successCount = 0;
     for (final insp in pending) {
       try {
         final response = await _apiClient.dio.post(
@@ -48,11 +53,16 @@ class SyncManager {
         if (response.statusCode == 201) {
           final remoteId = response.data['id'];
           await _inspectionDao.markAsSynced(insp.id, remoteId);
+          successCount++;
         }
       } catch (e) {
         // Falha silenciosa para manter na fila
         continue;
       }
+    }
+
+    if (successCount > 0 && onSyncSuccess != null) {
+      onSyncSuccess!(successCount);
     }
   }
 }
