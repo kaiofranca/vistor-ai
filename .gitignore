@@ -1,7 +1,25 @@
-# Secrets
+# Secrets & Credentials
 .env
 .env.*
 !.env.example
+*.key
+*.pem
+*.cert
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase_options.dart
+
+# Databases & Local Storage
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-journal
+hive/
+**/vistor_ai.sqlite
+
+# Logs
+*.log
+logs/
 
 # Python
 __pycache__/
@@ -17,25 +35,24 @@ htmlcov/
 coverage.xml
 dist/
 
-# arquivos de testes
-backend/seed_user.py 
-backend/test_ai.py
-backend/workflow.md
-backend/test_pdf.py
-
-# Alembic
-alembic/versions/*.pyc
-
 # Docker volumes
 pgdata/
 minio_data/
 redis_data/
 docker-data/
 
+# Backend - arquivos de testes e Alembic
+backend/seed_user.py 
+backend/test_ai.py
+backend/workflow.md
+backend/test_pdf.py
+alembic/versions/*.pyc
+
 # Flutter / Mobile
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+.metadata
 .pub-cache/
 .pub/
 build/
@@ -48,6 +65,7 @@ coverage/
 
 # Mobile Android
 mobile/android/.gradle/
+mobile/android/.konan/
 mobile/android/.cxx/
 mobile/android/captures/
 mobile/android/gradlew
@@ -66,8 +84,11 @@ mobile/android/app/build/
 # Mobile iOS
 mobile/ios/Pods/
 mobile/ios/.generated/
+mobile/ios/Flutter/App.framework
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
 
-# IDEs
+# IDEs & System
 .idea/
 .vscode/
 .DS_Store
@@ -75,6 +96,8 @@ Thumbs.db
 *.iml
 *.ipr
 *.iws
+.history/
+
 
 # Outros
 SPRINTS.md
