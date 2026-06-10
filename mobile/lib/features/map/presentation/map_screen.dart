@@ -9,6 +9,7 @@ import 'package:vistor_ai_mobile/app/theme.dart';
 import 'package:vistor_ai_mobile/features/map/domain/map_cubit.dart';
 import 'package:vistor_ai_mobile/features/map/domain/map_data.dart';
 import 'package:vistor_ai_mobile/features/map/domain/map_state.dart';
+import 'package:vistor_ai_mobile/features/map/presentation/widgets/heatmap_layer.dart';
 import 'package:vistor_ai_mobile/features/map/presentation/widgets/inspection_marker.dart';
 import 'package:vistor_ai_mobile/features/map/presentation/widgets/map_filter_sheet.dart';
 import 'package:vistor_ai_mobile/features/map/presentation/widgets/nearby_card.dart';
@@ -117,7 +118,9 @@ class _MapScreenState extends State<MapScreen> {
                   },
                 ),
               ),
-            // TODO: Adicionar HeatmapLayer na 12.3
+            if (data.activeLayer == MapActiveLayer.heatmap || 
+                data.activeLayer == MapActiveLayer.both)
+              HeatmapLayer(points: data.heatmapPoints),
           ],
         ),
 

@@ -12,7 +12,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 | 9 | Setup Mobile foundation | ✅ Concluído | 01/06/2026 |
 | 10 | Auth + Home + Nova Inspeção | ✅ Concluído | 04/06/2026 |
 | 11 | Detalhe da Inspeção + Gerar Laudo | ✅ Concluído | 09/06/2026 |
-| 12 | Mapa + Heatmap | ⏳ Em andamento | — |
+| 12 | Mapa + Heatmap | ✅ Concluído | 09/06/2026 |
 | 13 | Laudos + Perfil + Offline | ⬜ Pendente | — | — |
 | 14 | Gestão de Equipe + Exportar + Usuários | ⬜ Pendente | — | — |
 
@@ -656,3 +656,46 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `flutter analyze lib/features/map/` — No issues found.
 - Correção de `deprecated_member_use` de `.withOpacity` para `.withValues` validada e aplicada.
 - Redirecionamento `NearbyCard` → `/inspections/:id` devidamente configurado via GoRouter.
+
+---
+
+## Task 19
+
+**Data:** 09/06/2026
+
+**Sprint:** 12 - Mapa + Heatmap
+**Sessão:** 12.3 — Heatmap CustomPainter
+
+### O que foi feito
+
+- **HeatmapLayer:**
+  - Implementação de um `StatelessWidget` utilizando a API moderna do `flutter_map` v6 (acessando via `MapCamera.of(context)`).
+  - Utilização da classe `CustomPainter` nativa do Flutter para desenhar os blobs de temperatura.
+- **Lógica de Desenho:**
+  - Limite de iteração aos top 200 pontos para performance e preservação de FPS na renderização contínua.
+  - Conversão de `LatLng` para pixels da tela feita através de `MapCamera.latLngToScreenPoint`.
+  - Desenho de cada blob com base no nível de severidade usando `RadialGradient` com `BlendMode.screen` e centros transparentes nas bordas.
+  - Ajuste de opacidade da camada toda (`Opacity` widget = 0.7) para deixar os *tiles* de mapa visíveis ao fundo, conforme exigido.
+- **Integração no MapScreen:**
+  - O layer agora responde com sucesso aos estados cicláveis do `toggleLayer` do `MapCubit` (marcadores, heatmap, ou ambos simultâneos).
+
+### Validações que passaram
+
+- `flutter analyze lib/features/map/` — No issues found.
+- As três camadas (Markers, Heatmap, Both) funcionam de forma intercalada sem sobreposição de estado indesejada.
+- Total ausência de pacotes adicionais para a geração do heatmap, mantendo o bundle otimizado.
+
+### ✅ Checklist de conclusão da Sprint 12
+
+- [✅] `MapRepository` consome `getNearby` e converte para `Inspection`
+- [✅] `MapRepository` consome `getHeatmapData` e converte GeoJSON para `HeatmapPoint`
+- [✅] `MapCubit` implementado com suporte a refresh, raio e mudança de layers (`MapActiveLayer`)
+- [✅] Tela principal `MapScreen` estruturada com `FlutterMap`
+- [✅] `MarkerClusterLayerWidget` integra-se com pins customizados baseados na Severidade (`InspectionMarker`)
+- [✅] Aba de Controle Lateral com *glassmorphism*, botões com estados Dark/Light adaptáveis e interações de zoom
+- [✅] Modal interativo (`DraggableScrollableSheet`) construído contendo `NearbyCard` listados verticalmente (100% largura) com fallback do endereço e roteamento
+- [✅] Componente puro `HeatmapLayer` criado desenhando pontos sobre a camada usando `BlendMode.screen` e `RadialGradient` no `CustomPainter`
+- [✅] 3 commits + tag v0.12.0-map
+- [✅] Tabela de controle preenchida
+- [✅] PROGRESS_MOBILE.md atualizado
+
