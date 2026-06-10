@@ -23,7 +23,10 @@ class MapRepository {
     );
 
     final List<dynamic> data = response.data;
-    return data.map((json) => Inspection.fromJson(json)).toList();
+    return data.map((json) {
+      final inspectionJson = json['inspection'] as Map<String, dynamic>;
+      return Inspection.fromJson(inspectionJson);
+    }).toList();
   }
 
   Future<List<HeatmapPoint>> getHeatmapData() async {

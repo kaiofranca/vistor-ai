@@ -229,6 +229,8 @@ class _MapScreenState extends State<MapScreen> {
     required VoidCallback onTap,
     bool active = false,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       width: 44,
       height: 44,
@@ -245,7 +247,9 @@ class _MapScreenState extends State<MapScreen> {
           child: Icon(
             icon,
             size: 20,
-            color: active ? Colors.white : AppColors.primaryDeep,
+            color: active 
+                ? Colors.white 
+                : (isDark ? Colors.white : AppColors.primaryDeep),
           ),
         ),
       ),
@@ -272,66 +276,74 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Handle Bar
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 12, bottom: 16),
-                  width: 32,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.subtextLight.withValues(alpha:0.3),
-                    borderRadius: BorderRadius.circular(2),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle Bar
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 16),
+                    width: 32,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.subtextLight.withValues(alpha:0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Inspeções ao seu redor',
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha:0.1),
-                        borderRadius: BorderRadius.circular(12),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Inspeções ao seu redor',
+                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                       ),
-                      child: Text(
-                        data.inspections.length.toString(),
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha:0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          data.inspections.length.toString(),
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              Expanded(
-                child: data.inspections.isEmpty 
-                  ? const Center(child: Text('Nenhuma inspeção próxima encontrada.'))
+                
+                const SizedBox(height: 16),
+                
+                data.inspections.isEmpty 
+                  ? const Center(child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text('Nenhuma inspeção próxima encontrada.'),
+                    ))
                   : ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.only(left: AppSpacing.lg, bottom: 20),
-                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(left: AppSpacing.lg, right: AppSpacing.lg, bottom: 20),
                       itemCount: data.inspections.length,
                       itemBuilder: (context, index) {
-                        return NearbyCard(inspection: data.inspections[index]);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: NearbyCard(inspection: data.inspections[index]),
+                        );
                       },
                     ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

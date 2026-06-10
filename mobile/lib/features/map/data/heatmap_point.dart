@@ -16,9 +16,9 @@ class HeatmapPoint {
   factory HeatmapPoint.fromJson(Map<String, dynamic> json) {
     final geometry = json['geometry'] as Map<String, dynamic>;
     final coordinates = geometry['coordinates'] as List<dynamic>;
-    final properties = json['properties'] as Map<String, dynamic>;
+    final properties = json['properties'] as Map<String, dynamic>? ?? {};
     
-    final severityStr = properties['severity'] as String;
+    final severityStr = properties['severity'] as String?;
     final severity = InspectionSeverity.values.firstWhere(
       (e) => e.name == severityStr,
       orElse: () => InspectionSeverity.low,

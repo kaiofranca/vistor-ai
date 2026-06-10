@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vistor_ai_mobile/app/theme.dart';
+import 'package:vistor_ai_mobile/features/map/domain/map_cubit.dart';
 import 'package:vistor_ai_mobile/shared/models/inspection.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,8 +28,7 @@ class NearbyCard extends StatelessWidget {
     }
 
     return Container(
-      width: 240,
-      margin: const EdgeInsets.only(right: 12),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
@@ -36,21 +37,26 @@ class NearbyCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => context.push('/inspections/${inspection.id}'),
+          onTap: () => context.push('/inspections/${inspection.id}').then((_) {
+            if (context.mounted) {
+              context.read<MapCubit>().loadMap();
+            }
+          }),
           borderRadius: BorderRadius.circular(12),
-          child: Row(
-            children: [
-              Container(
-                width: 4,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: severityColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    bottomLeft: Radius.circular(12),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: severityColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
                   ),
                 ),
-              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
@@ -71,7 +77,9 @@ class NearbyCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              inspection.address ?? 'Endereço não disponível',
+                              (inspection.address?.isNotEmpty == true)
+                                  ? inspection.address!
+                                  : 'Lat: ${inspection.lat.toStringAsFixed(4)}, Lon: ${inspection.lon.toStringAsFixed(4)}',
                               style: const TextStyle(color: AppColors.subtextLight, fontSize: 11),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -85,6 +93,7 @@ class NearbyCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

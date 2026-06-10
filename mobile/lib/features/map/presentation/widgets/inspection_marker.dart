@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:vistor_ai_mobile/app/theme.dart';
+import 'package:vistor_ai_mobile/features/map/domain/map_cubit.dart';
 import 'package:vistor_ai_mobile/shared/models/inspection.dart';
 import 'package:vistor_ai_mobile/features/inspection/presentation/widgets/severity_badge.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -97,7 +99,12 @@ class InspectionMarker extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         context.pop();
-                        context.push('/inspections/${inspection.id}');
+                        context.push('/inspections/${inspection.id}').then((_) {
+                          // ignore: use_build_context_synchronously
+                          if (context.mounted) {
+                            context.read<MapCubit>().loadMap();
+                          }
+                        });
                       },
                       child: const Text('Ver detalhes'),
                     ),
