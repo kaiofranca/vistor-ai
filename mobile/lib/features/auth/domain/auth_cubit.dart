@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vistor_ai_mobile/core/api/token_storage.dart';
+import 'package:vistor_ai_mobile/core/di/service_locator.dart';
+import 'package:vistor_ai_mobile/core/services/notification_service.dart';
 import 'package:vistor_ai_mobile/features/auth/data/auth_repository.dart';
 import 'package:vistor_ai_mobile/features/auth/domain/auth_state.dart';
 
@@ -25,6 +27,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(const AuthState.loading());
       final user = await _authRepository.getMe();
       emit(AuthState.authenticated(user));
+      _updateFcmToken();
     } catch (e) {
       // Se falhar o getMe, tentamos dar refresh antes de deslogar
       final refreshed = await _authRepository.refreshToken();
@@ -32,6 +35,7 @@ class AuthCubit extends Cubit<AuthState> {
         try {
           final user = await _authRepository.getMe();
           emit(AuthState.authenticated(user));
+          _updateFcmToken();
           return;
         } catch (_) {}
       }
@@ -46,6 +50,7 @@ class AuthCubit extends Cubit<AuthState> {
       await _authRepository.login(email, password);
       final user = await _authRepository.getMe();
       emit(AuthState.authenticated(user));
+      _updateFcmToken();
     } on AuthException catch (e) {
       emit(AuthState.error(e.message));
     } catch (e) {
@@ -79,6 +84,13 @@ class AuthCubit extends Cubit<AuthState> {
       await _authRepository.logout();
     } finally {
       emit(const AuthState.unauthenticated());
+    }
+  }
+
+  Future<void> _updateFcmToken() async {
+    final token = await getIt<NotificationService>().getToken();
+    if (token != null) {
+      await _authRepository.updateFcmToken(token);
     }
   }
 }

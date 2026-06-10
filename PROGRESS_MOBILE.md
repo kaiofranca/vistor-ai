@@ -13,7 +13,7 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 | 10 | Auth + Home + Nova Inspeção | ✅ Concluído | 04/06/2026 |
 | 11 | Detalhe da Inspeção + Gerar Laudo | ✅ Concluído | 09/06/2026 |
 | 12 | Mapa + Heatmap | ✅ Concluído | 09/06/2026 |
-| 13 | Laudos + Perfil + Offline | ⬜ Pendente | — | — |
+| 13 | Laudos + Perfil + Offline | ✅ Concluído | 09/06/2026 |
 | 14 | Gestão de Equipe + Exportar + Usuários | ⬜ Pendente | — | — |
 
 ---
@@ -345,8 +345,8 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - `mobile/lib/features/inspection/presentation/inspection_list_screen.dart` — completo.
 - `mobile/lib/features/inspection/presentation/widgets/inspection_card.dart` — completo.
 - `mobile/lib/features/inspection/presentation/widgets/severity_badge.dart` — completo.
-- `mobile/lib/app/router.dart` — atualizado com provedores e banners.
-- `mobile/lib/pubspec.yaml` — dependência `intl` adicionada.
+- `mobile/lib/app/router.dart" — atualizado com provedores e banners.
+- `mobile/lib/pubspec.yaml" — dependência `intl` adicionada.
 
 ### Validações que passaram
 
@@ -699,3 +699,87 @@ foca exclusivamente na camada `mobile`. Para visualizar o `backend`, acesse o [`
 - [✅] Tabela de controle preenchida
 - [✅] PROGRESS_MOBILE.md atualizado
 
+---
+
+## Task 20
+
+**Data:** 09/06/2026
+
+**Sprint:** 13 - Laudos + Perfil + Offline
+**Sessão:** 13.1 — Profile Screen
+
+### O que foi feito
+
+- Implementação da `ProfileScreen` seguindo o Layout 8.5 do `LAYOUT.md`.
+- Criação do `ThemeService` com Hive para persistência da preferência de tema (Dark/Light/System).
+- Integração do `ValueNotifier<ThemeMode>` no `service_locator.dart` e `app.dart` para troca de tema reativa.
+- Exibição de dados reais do usuário (`AuthCubit`) e cargo dinâmico no header premium com gradiente.
+- Seção de sincronização com contador de pendências em tempo real via `StreamBuilder`.
+- Fluxo de logout com `BottomSheet` de confirmação e limpeza de estado.
+
+### Validações que passaram
+
+- Troca de tema funciona instantaneamente sem perda de estado de navegação.
+- Logout redireciona corretamente para a tela de login.
+
+---
+
+## Task 21
+
+**Data:** 09/06/2026
+
+**Sprint:** 13 - Laudos + Perfil + Offline
+**Sessão:** 13.2 — Offline Screen
+
+### O que foi feito
+
+- Implementação da `OfflineScreen` seguindo o Layout 8.12 com ícones amber e animação `Pulse`.
+- Atualização do `GoRouter` (`router.dart`) com lógica de redirecionamento para funcionalidades dependentes de rede (Mapa, Laudos, Gestão) quando não há conexão.
+- Garantia de acesso offline à Home (Minhas Inspeções) para consulta de dados em cache.
+- Refatoração do `SyncManager` para assegurar o envio de todos os campos obrigatórios na sincronização.
+- Correção de bug no roteador que reiniciava a navegação durante a alteração de tema.
+
+### Validações que passaram
+
+- Redirecionamento automático para a tela Offline ao tentar acessar Mapa/Laudos sem internet.
+- Sincronização manual via Perfil com feedback de `SnackBar`.
+- Animação de `sparkles` pulsando corretamente.
+
+---
+
+## Task 22
+
+**Data:** 09/06/2026
+
+**Sprint:** 13 - Laudos + Perfil + Offline
+**Sessão:** 13.3 — SyncManager + Notificações Push
+
+### O que foi feito
+
+- **SyncManager Finalizado:** Adição do `pendingCountStream` e callback `onSyncSuccess`. O upload agora inclui todos os metadados necessários (GPS, endereço, título).
+- **Integração FCM (Push):** Implementação do `NotificationService` utilizando apenas `firebase_messaging`. Configuração de handlers para mensagens em primeiro plano, background e cliques (deep-link para detalhes da inspeção).
+- **Backend:** Adição da coluna `fcm_token` no modelo `User` e criação do endpoint `PATCH /api/users/me/fcm-token` para registro dinâmico.
+- **Fluxo de Auth:** Atualização do `AuthCubit` para registrar o token FCM automaticamente após login ou verificação de sessão.
+- **Feedback Reativo:** O Perfil agora exibe `SnackBar` de sucesso após sincronização automática ou manual e atualiza o badge de pendências via stream.
+
+### Validações que passaram
+
+- Token FCM é enviado corretamente ao backend no login.
+- Clique em notificação redireciona para a tela de detalhe da inspeção correta.
+- Badge de pendências reflete o estado do banco local instantaneamente.
+
+---
+
+### ✅ Checklist de conclusão da Sprint 13
+
+```
+[✅] Perfil exibe nome, email e papel do usuário autenticado
+[✅] Toggle tema (sol/lua) funciona em ambas as direções
+[✅] Badge "N Pendentes" atualiza em tempo real
+[✅] Logout limpa tokens e redireciona para Login
+[✅] Tela Offline renderiza em light e dark
+[✅] Push notification ao criar inspeção crítica
+[✅] 3 commits + tag v0.13.0-profile-offline
+[✅] Tabela de controle preenchida (Kaio + 09/06/2026)
+[✅] PROGRESS_MOBILE.md atualizado
+```
