@@ -127,16 +127,30 @@ class CreateInspectionCubit extends Cubit<CreateInspectionState> {
       }
       
       // Fetch updated inspection for AI result
-      // Aumentamos para 10 segundos para dar tempo do background task do backend 
-      // processar a imagem e chamar a API do HuggingFace.
-      await Future.delayed(const Duration(seconds: 10));
-      final updatedInspection = await _repository.getById(inspection.id);
-      
-      emit(state.copyWith(
-        isSubmitting: false, 
-        isUploadingMedia: false, 
-        aiResultInspection: updatedInspection,
-      ));
+      try {
+        await Future.delayed(const Duration(seconds: 10));
+        final updatedInspection = await _repository.getById(inspection.id);
+        
+        if (updatedInspection.severity == null || updatedInspection.aiLabel == null) {
+          emit(state.copyWith(
+            isSubmitting: false, 
+            isUploadingMedia: false, 
+            isCompleted: true,
+          ));
+        } else {
+          emit(state.copyWith(
+            isSubmitting: false, 
+            isUploadingMedia: false, 
+            aiResultInspection: updatedInspection,
+          ));
+        }
+      } catch (e) {
+        emit(state.copyWith(
+          isSubmitting: false,
+          isUploadingMedia: false,
+          isCompleted: true,
+        ));
+      }
     } catch (e) {
       String message = e.toString();
       if (e is DioException) {

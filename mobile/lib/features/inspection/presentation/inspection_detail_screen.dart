@@ -69,7 +69,8 @@ class _StatusBadge extends StatelessWidget {
 }
 
 class InspectionDetailScreen extends StatefulWidget {
-  const InspectionDetailScreen({super.key});
+  final bool readOnly;
+  const InspectionDetailScreen({super.key, this.readOnly = false});
 
   @override
   State<InspectionDetailScreen> createState() => _InspectionDetailScreenState();
@@ -89,7 +90,7 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
         BlocListener<InspectionDetailCubit, InspectionDetailState>(
           listener: (context, state) {
             state.maybeWhen(
-              loaded: (insp, history, updating, generating, error) {
+              loaded: (insp, history, updating, generating, reevaluating, error) {
                 if (error != null) {
                   showErrorSnackbar(context, error);
                 }
@@ -128,13 +129,15 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
                     message: msg,
                     onRetry: () => context.read<InspectionDetailCubit>().load(),
                   ),
-                  loaded: (inspection, history, isUpdating, isGenerating, error) => 
-                      _buildContent(context, inspection, history, isUpdating, isGenerating),
+                  loaded: (inspection, history, isUpdating, isGenerating, isReevaluating, error) => 
+                      _buildContent(context, inspection, history, isUpdating, isGenerating, isReevaluating),
                 ),
-                bottomNavigationBar: state.maybeMap(
-                  loaded: (s) => _buildBottomBar(context, s.inspection),
-                  orElse: () => null,
-                ),
+                bottomNavigationBar: widget.readOnly 
+                    ? null 
+                    : state.maybeMap(
+                        loaded: (s) => _buildBottomBar(context, s.inspection),
+                        orElse: () => null,
+                      ),
               ),
               // Overlay de geração de laudo (via ReportCubit)
               context.watch<ReportCubit>().state.maybeWhen(
@@ -154,6 +157,7 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
     List<dynamic> history,
     bool isUpdating,
     bool isGenerating,
+    bool isReevaluating,
   ) {
     final heroImageUrl = inspection.media.isNotEmpty 
         ? inspection.media.first.thumbnailUrl ?? '' 
@@ -241,10 +245,8 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
               children: [
                 _buildInfoGrid(context, inspection),
                 const SizedBox(height: AppSpacing.xl),
-                if (inspection.aiLabel != null) ...[
-                  _buildAiAnalysisSection(context, inspection, isUpdating),
-                  const SizedBox(height: AppSpacing.xl),
-                ],
+                _buildAiAnalysisSection(context, inspection, isUpdating, isReevaluating),
+                const SizedBox(height: AppSpacing.xl),
                 if (inspection.media.isNotEmpty) ...[
                   _buildMediaSection(context, inspection),
                   const SizedBox(height: AppSpacing.xl),
@@ -346,7 +348,63 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
     );
   }
 
-  Widget _buildAiAnalysisSection(BuildContext context, Inspection inspection, bool isUpdating) {
+  Widget _buildAiAnalysisSection(BuildContext context, Inspection inspection, bool isUpdating, bool isReevaluating) {
+    if (inspection.media.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final hasAiResult = inspection.aiLabel != null && inspection.aiLabel != 'unknown';
+    
+    if (!hasAiResult) {
+      return GlassCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(LucideIcons.bot, color: AppColors.offline),
+                SizedBox(width: 8),
+                Text(
+                  'Análise de Inteligência Artificial',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'A análise automática por IA não está disponível ou falhou (tempo limite excedido).',
+              style: TextStyle(fontSize: 14, color: AppColors.subtextLight),
+            ),
+            if (!widget.readOnly && inspection.status != InspectionStatus.resolved && inspection.status != InspectionStatus.archived) ...[
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: isUpdating || isReevaluating ? null : () => _showCorrectionDialog(context),
+                      icon: const Icon(LucideIcons.edit3, size: 16),
+                      label: const Text('Definir Manual'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: isUpdating || isReevaluating ? null : () => context.read<InspectionDetailCubit>().reevaluateWithAi(),
+                      icon: isReevaluating 
+                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(LucideIcons.refreshCcw, size: 16),
+                      label: Text(isReevaluating ? 'Reavaliando...' : 'Reavaliar com IA'),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
     final score = inspection.aiScore ?? 0.0;
     final color = _getScoreColor(score);
 
@@ -387,22 +445,34 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
               ),
             ],
           ),
-          if (inspection.humanLabel == null) ...[
+          if (inspection.humanLabel == null && !widget.readOnly && inspection.status != InspectionStatus.resolved && inspection.status != InspectionStatus.archived) ...[
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: isUpdating ? null : () => _showCorrectionDialog(context),
+                    onPressed: isUpdating || isReevaluating ? null : () => _showCorrectionDialog(context),
                     child: const Text('Corrigir'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: isUpdating ? null : () => context.read<InspectionDetailCubit>().confirmAiLabel(),
+                    onPressed: isUpdating || isReevaluating ? null : () => context.read<InspectionDetailCubit>().confirmAiLabel(),
                     child: const Text('Confirmar'),
                   ),
+                ),
+              ],
+            ),
+          ] else if (inspection.humanLabel != null) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(LucideIcons.check, color: AppColors.success, size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  'Confirmado como: ${inspection.humanLabel}',
+                  style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 13),
                 ),
               ],
             ),
@@ -457,6 +527,10 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context, Inspection inspection) {
+    if (widget.readOnly || inspection.status == InspectionStatus.archived) {
+      return const SizedBox.shrink();
+    }
+
     final reportState = context.watch<ReportCubit>().state;
     final isGenerating = reportState.maybeWhen(generating: () => true, orElse: () => false);
 
@@ -465,48 +539,175 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
       orElse: () => false,
     );
 
-    final canGenerate = inspection.status == InspectionStatus.inProgress || 
-                       inspection.status == InspectionStatus.resolved;
-
     final isOpen = inspection.status == InspectionStatus.open;
+    final isInProgress = inspection.status == InspectionStatus.inProgress;
+    final isResolved = inspection.status == InspectionStatus.resolved;
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, -4),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: (isUpdating || isGenerating) 
-                ? null 
-                : (isOpen 
-                    ? () => context.read<InspectionDetailCubit>().updateStatus(InspectionStatus.inProgress)
-                    : (canGenerate 
-                        ? () => context.read<ReportCubit>().generate(inspection.id) 
-                        : null)),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: isOpen ? AppColors.primary : null,
+    if (isOpen) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              offset: const Offset(0, -4),
+              blurRadius: 10,
             ),
-            child: (isUpdating || isGenerating)
-                ? const SizedBox(
-                    height: 20, width: 20, 
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                  )
-                : Text(isOpen ? 'Iniciar Inspeção' : 'Gerar Laudo Técnico'),
+          ],
+        ),
+        child: SafeArea(
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: isUpdating ? null : () => context.read<InspectionDetailCubit>().updateStatus(InspectionStatus.inProgress),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: AppColors.primary,
+              ),
+              child: isUpdating
+                  ? const SizedBox(
+                      height: 20, width: 20, 
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text('Iniciar Inspeção'),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
+
+    if (isInProgress) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              offset: const Offset(0, -4),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: isUpdating ? null : () => context.read<InspectionDetailCubit>().updateStatus(InspectionStatus.archived),
+                      icon: const Icon(LucideIcons.archive, size: 16),
+                      label: const Text('Arquivar'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                        side: const BorderSide(color: Colors.grey),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: isUpdating ? null : () {
+                        if (inspection.media.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('RN-01: Adicione pelo menos uma foto antes de finalizar.'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                          return;
+                        }
+                        context.read<InspectionDetailCubit>().updateStatus(InspectionStatus.resolved);
+                      },
+                      icon: const Icon(LucideIcons.checkCircle, size: 16),
+                      label: const Text('Finalizar Inspeção'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  onPressed: isGenerating ? null : () => context.read<ReportCubit>().generate(inspection.id),
+                  icon: isGenerating 
+                      ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
+                      : const Icon(LucideIcons.fileText, size: 16),
+                  label: const Text('Gerar Laudo Parcial'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (isResolved) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              offset: const Offset(0, -4),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: isUpdating ? null : () => context.read<InspectionDetailCubit>().updateStatus(InspectionStatus.archived),
+                      icon: const Icon(LucideIcons.archive, size: 16),
+                      label: const Text('Arquivar'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                        side: const BorderSide(color: Colors.grey),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: isGenerating ? null : () => context.read<ReportCubit>().generate(inspection.id),
+                      icon: isGenerating 
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(LucideIcons.fileSpreadsheet, size: 16),
+                      label: const Text('Gerar Laudo Técnico'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   Color _getScoreColor(double score) {

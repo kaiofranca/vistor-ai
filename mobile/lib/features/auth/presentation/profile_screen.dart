@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:vistor_ai_mobile/app/theme.dart';
 import 'package:vistor_ai_mobile/core/di/service_locator.dart';
@@ -78,6 +79,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: LucideIcons.lock,
                       title: "Segurança e Senha",
                       onTap: () {},
+                    ),
+                    const Divider(),
+                    _SettingsTile(
+                      icon: LucideIcons.archive,
+                      title: "Inspeções Finalizadas & Arquivo",
+                      onTap: () => context.push('/profile/archive'),
                     ),
                   ],
                 ),

@@ -119,6 +119,7 @@ class StatusTimeline extends StatelessWidget {
 
   Color _getStatusColor(String action, bool isCurrent) {
     if (action == 'create') return AppColors.primary;
+    if (action == 'ai_classified') return Colors.purple;
     if (action == 'delete') return AppColors.error;
     
     return isCurrent ? AppColors.primary : AppColors.subtextLight.withValues(alpha: 0.5);
@@ -128,10 +129,28 @@ class StatusTimeline extends StatelessWidget {
     switch (log.action) {
       case 'create':
         return 'Inspeção Criada';
+      case 'ai_classified':
+        final label = log.newValue?['ai_label'] ?? 'Não identificado';
+        final score = log.newValue?['ai_score'] != null 
+            ? '${((log.newValue?['ai_score'] as num) * 100).toStringAsFixed(0)}%'
+            : '';
+        return 'IA Classificou: $label ($score)';
       case 'update':
         final status = log.newValue?['status'];
+        final severity = log.newValue?['severity'];
+        final humanLabel = log.newValue?['human_label'];
+
+        if (status != null && severity != null) {
+          return 'Status: ${status.toString().toUpperCase()} & Severidade: ${severity.toString().toUpperCase()}';
+        }
         if (status != null) {
           return 'Status alterado para ${status.toString().toUpperCase()}';
+        }
+        if (severity != null) {
+          return 'Severidade alterada para ${severity.toString().toUpperCase()}';
+        }
+        if (humanLabel != null) {
+          return 'Classificação confirmada: $humanLabel';
         }
         return 'Dados atualizados';
       case 'delete':

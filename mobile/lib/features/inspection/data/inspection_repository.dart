@@ -170,6 +170,22 @@ class InspectionRepository {
     }
   }
 
+  Future<Inspection> reclassify(String id) async {
+    try {
+      final response = await _apiClient.dio.post(
+        AppEndpoints.inspectionReclassify(id),
+      );
+
+      if (response.statusCode == 200) {
+        return Inspection.fromJson(response.data);
+      }
+      throw Exception('Erro ao reavaliar com IA');
+    } on DioException catch (e) {
+      final message = e.response?.data['detail'] ?? 'Erro ao reavaliar com IA';
+      throw Exception(message);
+    }
+  }
+
   Future<void> saveLocalMedia(String localInspectionId, String filePath) async {
     await _inspectionDao.insertLocalMedia(
       LocalMediaCompanion.insert(
