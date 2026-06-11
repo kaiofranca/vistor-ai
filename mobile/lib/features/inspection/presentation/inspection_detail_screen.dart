@@ -13,8 +13,8 @@ import 'package:vistor_ai_mobile/shared/widgets/error_state.dart';
 import 'package:vistor_ai_mobile/shared/widgets/loading_state.dart';
 import 'package:vistor_ai_mobile/shared/widgets/glass_card.dart';
 import 'package:vistor_ai_mobile/shared/widgets/error_snackbar.dart';
-import 'package:vistor_ai_mobile/features/report/domain/report_cubit.dart';
-import 'package:vistor_ai_mobile/features/report/domain/report_state.dart';
+import 'package:vistor_ai_mobile/features/report/presentation/cubit/report_cubit.dart';
+import 'package:vistor_ai_mobile/features/report/presentation/cubit/report_state.dart';
 import 'package:vistor_ai_mobile/shared/widgets/loading_overlay.dart';
 import 'package:go_router/go_router.dart';
 
@@ -101,15 +101,6 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
         BlocListener<ReportCubit, ReportState>(
           listener: (context, state) {
             state.maybeWhen(
-              generated: (report) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Laudo técnico gerado com sucesso!'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-                context.push('/reports/${report.id}', extra: report);
-              },
               error: (msg) => showErrorSnackbar(context, msg),
               orElse: () {},
             );
@@ -138,7 +129,7 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
               ),
               // Overlay de geração de laudo (via ReportCubit)
               context.watch<ReportCubit>().state.maybeWhen(
-                    generating: () => const AppLoadingOverlay(message: 'Gerando laudo técnico...'),
+                    loading: () => const AppLoadingOverlay(message: 'Gerando laudo técnico...'),
                     orElse: () => const SizedBox.shrink(),
                   ),
             ],
@@ -458,7 +449,7 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
 
   Widget _buildBottomBar(BuildContext context, Inspection inspection) {
     final reportState = context.watch<ReportCubit>().state;
-    final isGenerating = reportState.maybeWhen(generating: () => true, orElse: () => false);
+    final isGenerating = reportState.maybeWhen(loading: () => true, orElse: () => false);
 
     final isUpdating = context.watch<InspectionDetailCubit>().state.maybeMap(
       loaded: (s) => s.isUpdatingStatus,
@@ -491,7 +482,18 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
                 : (isOpen 
                     ? () => context.read<InspectionDetailCubit>().updateStatus(InspectionStatus.inProgress)
                     : (canGenerate 
-                        ? () => context.read<ReportCubit>().generate(inspection.id) 
+                        ? () async {
+                            final report = await context.read<ReportCubit>().generate(inspection.id);
+                            if (report != null && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Laudo técnico gerado com sucesso!'),
+                                  backgroundColor: AppColors.success,
+                                ),
+                              );
+                              context.push('/reports/${report.id}', extra: report);
+                            }
+                          }
                         : null)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
