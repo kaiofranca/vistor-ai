@@ -13,6 +13,7 @@ class InspectionDetailState with _$InspectionDetailState {
     @Default([]) List<AuditLog> history,
     @Default(false) bool isUpdatingStatus,
     @Default(false) bool isGeneratingReport,
+    @Default(false) bool isReevaluating,
     String? error,
   }) = _Loaded;
   const factory InspectionDetailState.error(String message) = _Error;

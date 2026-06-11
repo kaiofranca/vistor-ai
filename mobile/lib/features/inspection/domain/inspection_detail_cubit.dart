@@ -126,4 +126,28 @@ class InspectionDetailCubit extends Cubit<InspectionDetailState> {
       ));
     }
   }
+
+  Future<void> reevaluateWithAi() async {
+    final currentState = state.maybeMap(
+      loaded: (s) => s,
+      orElse: () => null,
+    );
+    if (currentState == null) return;
+
+    emit(currentState.copyWith(isReevaluating: true, error: null));
+    try {
+      final updated = await _repository.reclassify(_inspectionId);
+      final history = await _repository.getHistory(_inspectionId);
+      emit(currentState.copyWith(
+        inspection: updated,
+        history: history,
+        isReevaluating: false,
+      ));
+    } catch (e) {
+      emit(currentState.copyWith(
+        isReevaluating: false,
+        error: e.toString(),
+      ));
+    }
+  }
 }

@@ -12,6 +12,7 @@ class AppEndpoints {
   static String inspectionDetail(String id) => '/inspections/$id';
   static String inspectionUpdate(String id) => '/inspections/$id';
   static String inspectionDelete(String id) => '/inspections/$id';
+  static String inspectionReclassify(String id) => '/inspections/$id/reclassify';
 
   // Geo
   static const String nearby = '/geo/nearby';

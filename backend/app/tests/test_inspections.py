@@ -168,3 +168,12 @@ async def test_geo_nearby_validation_error(authed_client: AsyncClient):
     # 12. GET /geo/nearby com raio 99999 → 422
     response = await authed_client.get("/api/geo/nearby?lat=0&lon=0&radius_m=99999")
     assert response.status_code == 422
+
+@pytest.mark.asyncio
+async def test_reclassify_no_photos(authed_client: AsyncClient):
+    res_create = await authed_client.post("/api/inspections/", json={"title": "No Photos", "category": "c", "lat": 0, "lon": 0})
+    insp_id = res_create.json()["id"]
+    
+    response = await authed_client.post(f"/api/inspections/{insp_id}/reclassify")
+    assert response.status_code == 400
+    assert "não há fotos confirmadas" in response.json()["detail"]

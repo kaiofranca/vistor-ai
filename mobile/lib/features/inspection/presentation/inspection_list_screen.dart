@@ -104,6 +104,7 @@ class _InspectionListScreenState extends State<InspectionListScreen> {
                 _buildFilterChip(context, 'Aberto', 'open', isStatus: true),
                 _buildFilterChip(context, 'Em Andamento', 'in_progress', isStatus: true),
                 _buildFilterChip(context, 'Resolvido', 'resolved', isStatus: true),
+                _buildFilterChip(context, 'Arquivado', 'archived', isStatus: true),
                 const SizedBox(width: 8, child: VerticalDivider(indent: 8, endIndent: 8)),
                 _buildFilterChip(context, 'Crítico', 'critical', isStatus: false, color: Colors.red),
                 _buildFilterChip(context, 'Moderado', 'moderate', isStatus: false, color: Colors.orange),
@@ -137,6 +138,7 @@ class _InspectionListScreenState extends State<InspectionListScreen> {
                         if (cubitStatus == 'open' && i.status != InspectionStatus.open) return false;
                         if (cubitStatus == 'in_progress' && i.status != InspectionStatus.inProgress) return false;
                         if (cubitStatus == 'resolved' && i.status != InspectionStatus.resolved) return false;
+                        if (cubitStatus == 'archived' && i.status != InspectionStatus.archived) return false;
                       }
 
                       // Filter by severity

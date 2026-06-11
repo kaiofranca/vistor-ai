@@ -8,6 +8,7 @@ from fastapi import HTTPException, status
 import httpx
 
 from app.models.inspection import Inspection, InspectionStatus, InspectionSeverity
+from app.models.media import MediaType, MediaStatus
 from app.models.user import User, UserRole
 from app.schemas.inspection import InspectionCreate, InspectionUpdate
 from app.services import audit_service, storage_service
@@ -24,6 +25,8 @@ async def _populate_media_urls(inspections: List[Inspection] | Inspection):
         for m in insp.media:
             if m.thumbnail_key:
                 m.thumbnail_url = await storage_service.get_presigned_download_url("thumbnails", m.thumbnail_key)
+            elif m.minio_key:
+                m.thumbnail_url = await storage_service.get_presigned_download_url("inspections", m.minio_key)
 
 async def _reverse_geocode(lat: float, lon: float) -> Optional[str]:
     """Tenta obter o endereço via Nominatim (OSM) se o mobile não enviar."""
@@ -254,3 +257,28 @@ async def get_nearby(
     for row in rows:
         await _populate_media_urls(row[0])
     return rows
+
+async def reclassify(db: AsyncSession, inspection_id: UUID, current_user: User) -> Inspection:
+    inspection = await get_by_id(db, inspection_id, current_user)
+    
+    # Busca mídias do tipo photo confirmadas
+    photos = [m for m in inspection.media if m.type == MediaType.photo and m.status == MediaStatus.confirmed]
+    if not photos:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Não é possível classificar a inspeção pois não há fotos confirmadas registradas."
+        )
+    
+    # Processa a primeira foto usando o serviço de IA de forma síncrona
+    from app.services import ai_service
+    await ai_service.process_inspection_media(inspection.id, db, photos[0].id)
+    
+    # Recarrega a inspeção para retornar com as alterações
+    query = select(Inspection).where(Inspection.id == inspection.id).options(
+        selectinload(Inspection.inspector),
+        selectinload(Inspection.media)
+    )
+    result = await db.execute(query)
+    updated_insp = result.scalar_one()
+    await _populate_media_urls(updated_insp)
+    return updated_insp

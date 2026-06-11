@@ -63,3 +63,11 @@ async def delete_inspection(
     user: User = Depends(get_current_user),
 ):
     await inspection_service.soft_delete(db, id, current_user=user)
+
+@router.post("/{id}/reclassify", response_model=InspectionOut)
+async def reclassify_inspection(
+    id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return await inspection_service.reclassify(db, id, current_user=user)
