@@ -17,7 +17,8 @@ import 'package:vistor_ai_mobile/features/inspection/presentation/create_inspect
 import 'package:vistor_ai_mobile/features/inspection/presentation/inspection_detail_screen.dart';
 import 'package:vistor_ai_mobile/features/map/presentation/map_screen.dart';
 import 'package:vistor_ai_mobile/features/report/presentation/report_list_screen.dart';
-import 'package:vistor_ai_mobile/features/report/presentation/report_viewer_screen.dart';
+import 'package:vistor_ai_mobile/features/report/presentation/cubit/report_cubit.dart';
+import 'package:vistor_ai_mobile/features/report/presentation/screens/report_detail_screen.dart';
 import 'package:vistor_ai_mobile/shared/models/report.dart';
 import 'package:vistor_ai_mobile/shared/screens/offline_screen.dart';
 import 'package:vistor_ai_mobile/shared/widgets/offline_banner.dart';
@@ -222,7 +223,10 @@ GoRouter buildRouter(AuthCubit authCubit) {
                     builder: (context, state) {
                       final report = state.extra as Report?;
                       if (report != null) {
-                        return ReportViewerScreen(report: report);
+                        return BlocProvider(
+                          create: (context) => getIt<ReportCubit>(),
+                          child: ReportDetailScreen(report: report),
+                        );
                       }
                       return const Scaffold(
                         body: Center(child: Text('Erro: Laudo não carregado')),

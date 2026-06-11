@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -13,8 +14,8 @@ import 'package:vistor_ai_mobile/shared/widgets/error_state.dart';
 import 'package:vistor_ai_mobile/shared/widgets/loading_state.dart';
 import 'package:vistor_ai_mobile/shared/widgets/glass_card.dart';
 import 'package:vistor_ai_mobile/shared/widgets/error_snackbar.dart';
-import 'package:vistor_ai_mobile/features/report/domain/report_cubit.dart';
-import 'package:vistor_ai_mobile/features/report/domain/report_state.dart';
+import 'package:vistor_ai_mobile/features/report/presentation/cubit/report_cubit.dart';
+import 'package:vistor_ai_mobile/features/report/presentation/cubit/report_state.dart';
 import 'package:vistor_ai_mobile/shared/widgets/loading_overlay.dart';
 import 'package:go_router/go_router.dart';
 
@@ -76,10 +77,28 @@ class InspectionDetailScreen extends StatefulWidget {
 }
 
 class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
+  final ScrollController _scrollController = ScrollController();
+  double _scrollOffset = 0.0;
+
   @override
   void initState() {
     super.initState();
     context.read<InspectionDetailCubit>().load();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.hasClients) {
+      setState(() {
+        _scrollOffset = _scrollController.offset;
+      });
+    }
   }
 
   @override
@@ -101,15 +120,6 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
         BlocListener<ReportCubit, ReportState>(
           listener: (context, state) {
             state.maybeWhen(
-              generated: (report) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Laudo técnico gerado com sucesso!'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-                context.push('/reports/${report.id}', extra: report);
-              },
               error: (msg) => showErrorSnackbar(context, msg),
               orElse: () {},
             );
@@ -138,7 +148,7 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
               ),
               // Overlay de geração de laudo (via ReportCubit)
               context.watch<ReportCubit>().state.maybeWhen(
-                    generating: () => const AppLoadingOverlay(message: 'Gerando laudo técnico...'),
+                    loading: () => const AppLoadingOverlay(message: 'Gerando laudo técnico...'),
                     orElse: () => const SizedBox.shrink(),
                   ),
             ],
@@ -159,119 +169,144 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
         ? inspection.media.first.thumbnailUrl ?? '' 
         : '';
 
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 260,
-          pinned: true,
-          stretch: true,
-          backgroundColor: AppColors.primary,
-          flexibleSpace: FlexibleSpaceBar(
-            stretchModes: const [StretchMode.zoomBackground],
-            centerTitle: false,
-            titlePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 16),
-            title: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return Stack(
+      children: [
+        CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 260,
+              pinned: true,
+              stretch: true,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: const [StretchMode.zoomBackground],
+                centerTitle: false,
+                titlePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 16),
+                title: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SeverityBadge(
-                      severity: inspection.severity ?? InspectionSeverity.pendingReview,
-                      isLarge: true,
+                    Row(
+                      children: [
+                        SeverityBadge(
+                          severity: inspection.severity ?? InspectionSeverity.pendingReview,
+                          isLarge: true,
+                        ),
+                        const SizedBox(width: 8),
+                        _StatusBadge(status: inspection.status),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    _StatusBadge(status: inspection.status),
+                    const SizedBox(height: 8),
+                    Text(
+                      inspection.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        shadows: [Shadow(color: Colors.black87, blurRadius: 10)],
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  inspection.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    shadows: [Shadow(color: Colors.black87, blurRadius: 10)],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-            background: Stack(
-              fit: StackFit.expand,
-              children: [
-                Hero(
-                  tag: 'inspection-${inspection.id}',
-                  child: heroImageUrl.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: heroImageUrl,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(color: Colors.grey[300]),
-                          errorWidget: (context, url, error) => Container(
-                            color: Colors.grey[300],
-                            child: const Icon(LucideIcons.imageOff, color: Colors.grey),
-                          ),
-                        )
-                      : Container(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          child: const Icon(LucideIcons.image, size: 64, color: AppColors.primary),
-                        ),
-                ),
-                // Gradient Overlay
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black],
-                      stops: [0.3, 1.0],
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Hero(
+                      tag: 'inspection-${inspection.id}',
+                      child: heroImageUrl.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: heroImageUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(color: Colors.grey[300]),
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.grey[300],
+                                child: const Icon(LucideIcons.imageOff, color: Colors.grey),
+                              ),
+                            )
+                          : Container(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              child: const Icon(LucideIcons.image, size: 64, color: AppColors.primary),
+                            ),
                     ),
-                  ),
+                    // Gradient Overlay
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.transparent, Colors.black],
+                          stops: [0.3, 1.0],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoGrid(context, inspection),
+                    const SizedBox(height: AppSpacing.xl),
+                    if (inspection.aiLabel != null) ...[
+                      _buildAiAnalysisSection(context, inspection, isUpdating),
+                      const SizedBox(height: AppSpacing.xl),
+                    ],
+                    if (inspection.media.isNotEmpty) ...[
+                      _buildMediaSection(context, inspection),
+                      const SizedBox(height: AppSpacing.xl),
+                    ],
+                    const Text(
+                      'Linha do Tempo',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    StatusTimeline(
+                      history: history.cast(),
+                      currentStatus: inspection.status,
+                    ),
+                    const SizedBox(height: AppSpacing.xxl),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInfoGrid(context, inspection),
-                const SizedBox(height: AppSpacing.xl),
-                if (inspection.aiLabel != null) ...[
-                  _buildAiAnalysisSection(context, inspection, isUpdating),
-                  const SizedBox(height: AppSpacing.xl),
-                ],
-                if (inspection.media.isNotEmpty) ...[
-                  _buildMediaSection(context, inspection),
-                  const SizedBox(height: AppSpacing.xl),
-                ],
-                const Text(
-                  'Linha do Tempo',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                StatusTimeline(
-                  history: history.cast(),
-                  currentStatus: inspection.status,
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-              ],
-            ),
+        Positioned(
+          top: 8.0 + (_scrollOffset.clamp(0.0, 150.0) / 150.0) * 16.0,
+          left: 16,
+          child: const SafeArea(
+            child: _GlassBackButton(),
           ),
         ),
       ],
     );
   }
 
+  String _formatAddress(String? address) {
+    if (address == null || address.trim().isEmpty) {
+      return 'Endereço não disponível';
+    }
+    final parts = address.split(',').map((e) => e.trim()).toList();
+    if (parts.length >= 2) {
+      return '${parts[0]}, ${parts[1]}';
+    }
+    return address;
+  }
+
   Widget _buildInfoGrid(BuildContext context, Inspection inspection) {
     final hasAddress = inspection.address != null && inspection.address!.trim().isNotEmpty;
-    final displayAddress = hasAddress ? inspection.address! : 'Endereço não disponível';
+    final displayAddress = hasAddress ? _formatAddress(inspection.address) : 'Endereço não disponível';
     
-    final locationStr = '$displayAddress\n(${inspection.lat.toStringAsFixed(4)}, ${inspection.lon.toStringAsFixed(4)})';
+    final locationStr = displayAddress;
 
     return Column(
       children: [
@@ -458,7 +493,7 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
 
   Widget _buildBottomBar(BuildContext context, Inspection inspection) {
     final reportState = context.watch<ReportCubit>().state;
-    final isGenerating = reportState.maybeWhen(generating: () => true, orElse: () => false);
+    final isGenerating = reportState.maybeWhen(loading: () => true, orElse: () => false);
 
     final isUpdating = context.watch<InspectionDetailCubit>().state.maybeMap(
       loaded: (s) => s.isUpdatingStatus,
@@ -491,7 +526,18 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
                 : (isOpen 
                     ? () => context.read<InspectionDetailCubit>().updateStatus(InspectionStatus.inProgress)
                     : (canGenerate 
-                        ? () => context.read<ReportCubit>().generate(inspection.id) 
+                        ? () async {
+                            final report = await context.read<ReportCubit>().generate(inspection.id);
+                            if (report != null && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Laudo técnico gerado com sucesso!'),
+                                  backgroundColor: AppColors.success,
+                                ),
+                              );
+                              context.push('/reports/${report.id}', extra: report);
+                            }
+                          }
                         : null)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -568,5 +614,41 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
       default:
         return LucideIcons.clipboardList;
     }
+  }
+}
+
+class _GlassBackButton extends StatelessWidget {
+  const _GlassBackButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.pop(context),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(50),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.3),
+                width: 1.0,
+              ),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
